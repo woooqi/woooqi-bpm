@@ -1,0 +1,155 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>edit Menu</title>
+		
+	    <style type="text/css">
+	    </style>
+        <script type="text/javascript">
+	        $(document).ready(function() {
+	    		var id = '${id}';
+	    		if(id !='' && id !=null){
+		    		$.ajax({
+		 			   type: "POST",
+		 			   url: "${ctx}/menu/getMenuById",
+		 			   dataType: 'json',
+		 			   data:{id : id},
+		 			   async: false,
+		 			   success: function(data){
+	 						$("#name").val(data.name);  
+	 						$("#url_name").val(data.url);  
+	 						$("#sort").val(data.sort); 
+	 						$("#stamp").val(data.stamp);
+	 						$("#image").val(data.image);
+	 						$("#status").val(data.status); 
+		 			   }
+		    		});
+	    		}
+	    	});
+	        
+	       	function save(){
+	       		var name = $("#name").val();
+	       		var url_name = $("#url_name").val();
+	       		var status = $("#status").val();
+	       		var sort = $("#sort").val();
+	       		var stamp = $("#stamp").val();
+	       		var image = $("#image").val();
+	       		var id = '${id}';
+	       		 
+	       		if(name.trim()==""){
+					alert("菜单名称不能为空");
+					return;
+				}
+	       		if(url_name.trim()==""){
+					alert("URL不能为空");
+					return;
+				}
+	       		if(status.trim()==""){
+					alert("请选择状态");
+					return;
+				}
+	       		if(sort.trim()==""||!/^[0-9]*$/.test(sort)){
+					alert("输入排序必须是数字");
+					return;
+				}
+	       		$.ajax({
+		 			   type: "POST",
+		 			   url: "${ctx}/menu/saveMenu",
+		 			   dataType: 'json',
+		 			   data : {id:id ,name : name,url_name :url_name,status:status,image:image,sort:sort,stamp:stamp,parentId:"${parentId}"},
+		 			   async: false,
+		 			   success: function(data){
+		 				 	if(data.code>0){
+		 				 		alert(data.msg);
+		 				 		parent.d.close();
+		 				 		parent.getTreeMenu();
+			 				 	parent.f_search();
+		 				 	}else if(data.code=-1){
+		 				 		alert(data.msg);
+		 				 	}
+		 					else{
+		 				 		alert("创建失败");
+		 				 		return;
+		 				 	}
+		 				 	
+		 			   }
+		    		});   
+	       	
+	       	}
+	       	var d = null;
+	       	var win_width = $(window).width();
+	    	var win_height = $(window).height();
+	       	function show_simple(){
+	       		d = dialog({
+	   				title: '图标示例',
+	   				url : '${ctx}/edit?path=organization/menu_image_simple',
+	   				width :  win_width*0.6,
+	   				height : 80,
+	   				close:false
+		   		});
+		   		d.show(document.getElementById('show_simple'));
+	       	}
+        	
+	        function search(){
+    	    	$('#data-table').bootstrapTable('refresh', {}); 
+    	    }
+        </script>
+	</head>
+	<body>
+			<div class="row">
+				<div class="col-md-12">
+						<div class="panel-body">
+								<div class="col-md-12">
+									<table>
+										<tr>
+											<td class="col-md-3 " ><label>名称:</label></td>
+											<td class="col-md-8">
+												<input class="form-control" id="name" name="name" >
+											</td>
+										</tr>
+										<tr>
+											<td class="col-md-1" ><label>图标:</label></td>
+											<td class="col-md-3">
+												<input class="form-control" id="image" name="image" >
+											</td>
+											<td style="width: 40px;"><button id="show_simple" type="button" class="btn btn-primary" onclick="show_simple()">示例</button></td>
+										</tr>
+										<tr>
+											<td class="col-md-1" ><label>标识:</label></td>
+											<td class="col-md-3">
+												<input class="form-control" id="stamp" name="stamp" >
+											</td>
+										</tr>
+										<tr>
+											<td class="col-md-1" ><label>URL:</label></td>
+											<td class="col-md-3">
+												<input class="form-control" id="url_name" name="url_name" >
+											</td>
+										</tr>
+										<tr>
+											<td class="col-md-1" ><label>状态:</label></td>
+											<td class="col-md-3 form-group">
+													<select id="status" name="status" class="form-control">
+                      									<option value="1" selected="selected">启用</option>
+                      									<option value="0">停用</option>
+													</select>
+											</td>
+										</tr>
+										<tr>
+											<td class="col-md-1" ><label>排序:</label></td>
+											<td class="col-md-3">
+												<input class="form-control" id="sort" name="sort" placeholder="请输入数字">
+											</td>
+										</tr>
+									</table>
+								</div>
+						</div>
+				</div>
+			</div>
+			<div class="modal-footer" style="background-color: white;">
+				<button type="button" class="btn btn-primary" onclick="save()">保存</button>
+				<button type="button" class="btn btn-default" onclick="parent.d.close();">取消</button>
+			</div>
+	</body>
+
+</html>

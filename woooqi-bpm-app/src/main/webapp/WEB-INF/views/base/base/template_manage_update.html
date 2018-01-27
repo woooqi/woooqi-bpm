@@ -1,0 +1,91 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>Deploy Manage</title>
+		
+	    <style type="text/css">
+	    
+	    </style>
+	     <script type="text/JavaScript" src="${ctx}/static/bootstrap/vendors/ckeditor/ckeditor.js"></script>
+        <script type="text/javascript">
+	        $(document).ready(function() {
+	    		var id = '${id}';
+	    		CKEDITOR.replace('comments');
+	    		if(id !=='' && id !==null){
+		    		$.ajax({
+		 			   type: "POST",
+		 			   url: "${ctx}/template/getTemplateById",
+		 			   dataType: 'json',
+		 			   data:{id : id},
+		 			   async: false,
+		 			   success: function(data){
+		 				  	$("#name").val(data.name);
+		 				  	CKEDITOR.instances.comments.setData(data.comments);
+		 			   }
+		    		});
+	    		}
+	    	});
+	        
+	       	function save(){
+	       		var name = $("#name").val();
+	       		var comments = $("#comments").val();
+	       		var id = '${id}';
+	       		if($("#name").val().trim()==""){
+					alert("模板名不能为空");
+					return;
+				}
+	       		$.ajax({
+		 			   type: "POST",
+		 			   url: "${ctx}/template/updateTemplate",
+		 			   dataType: 'json',
+		 			   data : {name : name,id : id,comments : CKEDITOR.instances.comments.getData()},
+		 			   async: false,
+		 			   success: function(data){
+		 				 	if(data.code>0){
+		 				 		alert(data.msg);
+		 				 		parent.d.close();
+		 				 	}else if(data.code<0){
+		 				 		alert(data.msg);
+		 				 	}
+		 				 	parent.search();
+		 			   }
+		    		});   
+	       	}
+        	
+	        function search(){
+    	    	$('#data-table').bootstrapTable('refresh', {}); 
+    	    }
+        </script>
+	</head>
+	<body>
+			<div class="row">
+				<div class="col-lg-12">
+						<div class="panel-body">
+								<div class="col-lg-12">
+									<table>
+										<tr>
+											<td class="col-lg-1" ><label>模板名：</label></td>
+											<td class="col-lg-4">
+												<input class="form-control" id="name" name="name" placeholder="请输入模板名">
+											</td>
+										</tr>
+										<tr>
+											<td colspan="2"></label></td>
+										</tr>
+										<tr>
+											<td colspan="2">
+												<textarea  id="comments" name="comments" class="form-control"></textarea >
+											</td>
+										</tr>
+									</table>
+								</div>
+						</div>
+				</div>
+			</div>
+			<div class="modal-footer" style="background-color: white;">
+				<button type="button" class="btn btn-primary" onclick="save()">保存</button>
+				<button type="button" class="btn btn-default" onclick="parent.d.close();">取消</button>
+			</div>
+	</body>
+
+</html>

@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+	<style type="text/css">
+		.form-control{margin-bottom: 10px;}
+		.new_input{width:200px;height: 26px;text-align: center;}
+		.fa-edit{color:#777777;}
+	</style>
+	<link rel="stylesheet" href="${ctx}/static/bootstrap/vendors/zTree_v3/css/metroStyle/metroStyle.css" type="text/css">
+	<script type="text/javascript" src="${ctx}/static/bootstrap/vendors/zTree_v3/js/jquery.ztree.core.js"></script>
+	<script language="javascript" type="text/javascript">
+	    var roleId="";
+	    var roleName ='';
+	    var deptId="";
+	    var deptName='';
+	    var choose = "";
+		var setting = {	
+	    		data: {
+	    			simpleData: {enable: true}},
+	        	callback: {
+	        		onClick: function(event, treeId, treeNode){
+	        			//alert(JSON.stringify(treeNode));
+	        			if(treeNode.isParent){
+	        				//alert("请选择子节点");
+	        				var tree = $.fn.zTree.getZTreeObj("role");
+	        				tree.expandNode(treeNode);
+	        				return;
+	        			}
+	        			roleId = treeNode.id;
+	        			roleName = treeNode.name;
+	        			choose ="角色"+":"+treeNode.id+":"+treeNode.name;
+	        			
+	        		}
+	        	}	
+	    	}; 
+		var setting_dept = {	
+	    		data: {
+	    			simpleData: {enable: true}},
+	        	callback: {
+	        		onClick: function(event, treeId, treeNode){
+	        			//alert(JSON.stringify(treeNode));
+	        			if(treeNode.isParent){
+	        				//alert("请选择子节点");
+	        				var tree = $.fn.zTree.getZTreeObj("dept");
+	        				tree.expandNode(treeNode);
+	        				return;
+	        			}
+	        			choose ="部门"+":"+treeNode.id+":"+treeNode.name;
+	   
+	        		}
+	        	}	
+	    	};
+		var setting_dept_post = {	
+	    		data: {
+	    			simpleData: {enable: true}},
+	        	callback: {
+	        		onClick: function(event, treeId, treeNode){
+	        			//alert(JSON.stringify(treeNode));
+	        			deptId = treeNode.id;
+	        			deptName = treeNode.name;
+	        			f_search_post();
+	   
+	        		}
+	        	}	
+	    	};
+		$(document).ready(function() { 
+            $.ajax({
+ 				type: "POST",
+ 				url: "${ctx}/role/getTreeRole",
+ 				dataType: 'json',
+ 				data:null,
+ 				success: function(rs){
+ 					var nodes = rs;
+ 					$.fn.zTree.init($("#role"), setting, nodes);
+ 					var tree = $.fn.zTree.getZTreeObj("role");
+ 					tree.expandAll(true);
+ 					// var node = zTree.getNodeByParam('name', '平台组');
+ 		            //zTree.selectNode(node);//选择点  
+ 					
+ 				 }
+ 			}); 
+            $.ajax({
+ 				type: "POST",
+ 				url: "${ctx}/dept/getEnableDept",
+ 				dataType: 'json',
+ 				data:null,
+ 				success: function(rs){
+ 					var nodes = rs;
+ 					$.fn.zTree.init($("#dept"), setting_dept, nodes);
+ 					var tree = $.fn.zTree.getZTreeObj("dept");
+ 					tree.expandAll(true);
+ 					//
+ 					$.fn.zTree.init($("#dept_post"), setting_dept_post, nodes);
+ 					var tree = $.fn.zTree.getZTreeObj("dept_post");
+ 					tree.expandAll(true);
+ 					// var node = zTree.getNodeByParam('name', '平台组');
+ 		            //zTree.selectNode(node);//选择点  
+ 					
+ 				 }
+ 			}); 
+          	  $("#data-table").on('check.bs.table', function (row){
+                	var selections = $('#data-table').bootstrapTable('getSelections');
+                	choose ="岗位"+":"+selections[0].id+":"+selections[0].name;
+        		}); 
+    		
+          
+		}); 
+		function save(){
+    		if (choose == '') {
+    			alert("请选择一条人员组信息");
+    			return;
+    		}
+    		var array;
+    		if(choose!=''){
+    			array=choose.split(":");
+    		}
+			parent.setAssignType(array[0]);
+			parent.setUserId(array[1]);
+			parent.setName(array[2]);
+			parent.d.close();
+			parent.d = null;
+		}	
+		
+		function f_close(){
+			parent.d.close();
+			parent.d = null;
+		}
+		
+		function queryParams(params) {
+	    	var param = {    
+    			pageNumber : params.pageNumber-1,    
+                pageSize : params.pageSize,
+                deptId :deptId,
+                status :1,
+            };   
+            return param;                   
+        }
+		
+		function f_search_post(){
+	    	$('#data-table').bootstrapTable('refresh', {});  
+		}
+		
+		function indexFormatter(value, row, index) {  
+            return index+1;  
+	    }
+		function  deptFormatter(value,row,index){
+	     		if(value){
+	     			return value.name;
+	     		}else{
+	     			return "";
+	     		}
+	    }
+		
+		
+	 
+		
+		
+	</script>
+</head>
+<body>
+	<div id="wrapper">
+		<div class="row">
+			<div class="col-xs-12 "  style="margin-top: -10px;">
+				<div class="panel-body">
+				
+				 	<ul class="nav nav-tabs">
+                   		 <li class="active"><a href="#tab1" data-toggle="tab">角色选择</a></li>
+                  		 <li><a href="#tab2" data-toggle="tab">部门选择</a></li>
+                  		 <li><a href="#tab3" data-toggle="tab">岗位选择</a></li>
+              	  	</ul>
+              	  	
+              	  	<div  id="tabContent"  class="tab-content">
+	                	<div class="tab-pane fade in active" id="tab1">
+		                	<div class="panel panel-default">
+								<div class="panel-body pre-scrollable" style="height: 140px;">
+									<ul id="role" class="ztree"></ul>
+		            			</div>
+							</div>
+	                	</div>
+	                	
+	                	<div class="tab-pane fade " id="tab2">
+	                		<div class="panel panel-default">
+								<div class="panel-body pre-scrollable" style="height: 140px;">
+									<ul id="dept" class="ztree"></ul>
+		            			</div>
+							</div>
+	                	</div>
+	                	
+	                	<div class="tab-pane fade " id="tab3">
+		                	<div class="row">
+								<div class="col-xs-6 ">
+									<div class="panel panel-default">
+										<div class="panel-body pre-scrollable" style="height: 140px;">
+											<ul id="dept_post" class="ztree"></ul>
+						            	</div>
+									</div>
+								</div>
+								<div class="col-xs-6">
+									<div class="panel panel-default pre-scrollable">
+										<div class="panel-body " style="height: 120px;">
+										 	<table width="100%" class="table table-striped table-bordered table-hover"  id="data-table" 
+														data-toggle="table"  data-click-to-Select=true 
+														data-url="${ctx}/post/getPostByDeptId" data-method="post" data-content-type="application/x-www-form-urlencoded"
+														data-query-params="queryParams" data-query-params-type="undefined" 
+														data-pagination=true data-side-pagination="server" data-page-size=20 >
+												<thead>
+													<tr>
+														<th data-radio="true" data-width="30px"></th>
+														<th data-field="index" class="text-center" data-formatter="indexFormatter" data-width="50px">序号</th>
+														<th data-field="name"  class="text-center" >名称</th>
+														<th data-field="dept" data-formatter="deptFormatter" class="text-center" >所属部门</th>
+													</tr>
+												</thead>
+											</table>
+										 	
+										</div>	
+									</div>
+								</div>
+							</div>
+	                	</div>
+	                	
+	                	
+	                </div>
+				
+				</div>
+				
+			</div>
+		</div>
+		<div class="modal-footer" style="background-color: white;">
+		 	<button type="button" class="btn btn-primary" onclick="save()">确认</button>
+			<button type="button" class="btn btn-default" onclick="f_close()">取消</button>
+		</div>
+	</div>	
+	
+</body>
+</html>

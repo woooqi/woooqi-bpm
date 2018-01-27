@@ -1,0 +1,106 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>edit Cloumn</title>
+		
+	    <style type="text/css">
+	    </style>
+        <script type="text/javascript">
+    	var win_width = $(window).width();
+	    var win_height = $(window).height();
+	    var beforeFunction;
+	    var afterFunction;
+	    var processVariable="aa";
+        
+	        $(document).ready(function() {
+	        	$.ajax({
+		 			   type: "POST",
+		 			   url: "${ctx}/handler/dohandler",
+		 			   dataType: 'json',
+		 			   data:{activitiId : '${actId}'},
+		 			   async: false,
+		 			   success: function(data){
+		 				 //  alert(JSON.stringify(data));
+			 				 if(data.custom!=null){
+				 				   if(data.custom.html!=null){
+				 				  		$("#form").append(data.custom.html);
+				 				   }
+			 				 }
+		 				   if(data.web!=null){
+		 					   $("#web").attr("src",data.web.url);
+		 					   beforeFunction = data.web.beforeFunction;
+		 					   afterFunction = data.web.afterFunction;
+		 					   $("#web").css("display","block");
+		 					   $("#web").height(win_height);
+		 				   }
+		 				   if(data.node!=null){
+		 					   if(data.node.processVariable){
+		 						  processVariable = data.node.processVariable;
+		 					   }
+		 					   
+		 				   }
+		 		
+		 				   if(data.buttons!=null && data.buttons.length!=0){
+		 					   for(var i=0;i<data.buttons.length;i++){
+		 						   var button ="<button type='button' class='btn btn-primary' onclick=\"buttonHandler('"+data.buttons[i].code+"')\">"+data.buttons[i].name+"</button>";
+		 					  		$("#button").append(button);
+		 					   }
+		 					  
+		 					   
+		 				   }
+		 				  $("#button").append("<button type=\"button\" class=\"btn btn-default\" onclick=\"parent.d.close();\">取消</button>");
+		 				  
+		 			   }
+		    		});
+	    	});
+	        
+	        
+	        function buttonHandler(button){
+	        	var before_ret;
+	        	var after_ret;
+	        	if(beforeFunction){
+		        	var before = "before_ret = $('#web')[0].contentWindow."+beforeFunction+"()";
+		        	before_ret = eval(before);
+	        	}
+	        	 $.ajax({
+		 			   type: "POST",
+		 			   url: "${ctx}/handler/buttonhandler",
+		 			   dataType: 'json',
+		 			   data:{actId : '${actId}',instanceId:'${instanceId}',button:button,taskId:"${taskId}",before:before_ret},
+		 			   async: false,
+		 			   success: function(data){
+		 				  	
+		 				  	if(afterFunction){
+		 			        	var after = "after = $('#web')[0].contentWindow."+afterFunction+"('"+processVariable+"')";
+		 			        	eval(after);
+		 		        	}
+		 				  	
+		 				  	if(data.code>0){
+		 				  		alert("操作成功");
+		 				  	}
+		 				  	
+		 				  	parent.d.close();
+		 				  	parent.search();
+		 			   }
+		    		}); 
+		    		
+	        	
+	        }
+	       
+        </script>
+	</head>
+	<body>
+			<div class="row" >
+				<div class="col-md-12">
+					<div class="panel-body" >
+						<div id="form"  class="col-md-12"></div>
+						<iframe id="web" name="web" width="100%" frameborder="0" src="" style="display: none;" ></iframe>  
+					</div>
+				</div>
+			</div>
+			<div id="button" class="modal-footer" style="background-color: white;bottom: 0px;position: fixed;width: 100%;">
+				
+			</div>
+	</body>
+
+</html>

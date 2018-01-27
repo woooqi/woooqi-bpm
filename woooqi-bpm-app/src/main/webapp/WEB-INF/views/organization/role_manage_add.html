@@ -1,0 +1,110 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>Deploy Manage</title>
+		
+	    <style type="text/css">
+	    </style>
+        <script type="text/javascript">
+	        $(document).ready(function() {
+	    		var id = '${id}';
+	    		if(id !=='' && id !==null){
+	    		/* 	$('#password').remove();
+	    			$('#mm').remove(); */
+		    		$.ajax({
+		 			   type: "POST",
+		 			   url: "${ctx}/role/getRoleById",
+		 			   dataType: 'json',
+		 			   data:{id : id},
+		 			   async: false,
+		 			   success: function(data){
+		 				  //alert(JSON.stringify(data.name));
+	 						$("#name").val(data.name);
+	 						$("#roleCode").val(data.roleCode);
+		 			   }
+		    		});
+	    		}
+	    	});
+	        
+	       	function save_role(){
+	       		var name = $("#name").val();
+	       		//var password = $("#password").val();	
+	       		var roleCode = $("#roleCode").val();
+	       		var id = '${id}';
+	       		var status = $("#status").val();
+	       		if($("#name").val().trim()==""){
+					alert("用户名不能为空");
+					return;
+				}
+	       		if($("#roleCode").val().trim()==""){
+					alert("登陆名不能为空");
+					return;
+				}
+	       		
+	       		$.ajax({
+		 			   type: "POST",
+		 			   url: "${ctx}/role/createRole",
+		 			   dataType: 'json',
+		 			   data : {name : name,roleCode: roleCode,id : id,status : status},
+		 			   async: false,
+		 			   success: function(data){
+		 				 	if(data.code>0){
+		 				 		alert("操作成功");
+		 				 		parent.d.close();
+		 				 	}else if(data.code=-1){
+		 				 		alert(data.msg);
+		 				 	}
+		 					else{
+		 				 		alert("创建失败");
+		 				 		return;
+		 				 	}
+		 				 	parent.search();
+		 			   }
+		    		});   
+	       	
+	       	}
+        	
+	        function search(){
+    	    	$('#data-table').bootstrapTable('refresh', {}); 
+    	    }
+        </script>
+	</head>
+	<body>
+			<div class="row">
+				<div class="col-md-12">
+						<div class="panel-body">
+								<div class="col-md-12">
+									<table>
+										<tr>
+											<td class="col-md-1 " ><label>角色：</label></td>
+											<td class="col-md-3">
+												<input class="form-control " id="name" name="name" >
+											</td>
+										</tr>
+										<tr>
+											<td class="col-md-1 "><label>角色编码：</label></td>
+											<td class="col-md-3">
+												<input class="form-control" id="roleCode" name="roleCode" >
+											</td>
+										</tr>
+										<tr>
+											<td class="col-md-1 " ><label>状态:</label></td>
+											<td class="col-md-3 form-group">
+													<select id="status" name="status" class="form-control">
+                      									<option value="1" selected="selected">启用</option>
+                      									<option value="0">停用</option>
+													</select>
+											</td>
+										</tr>
+									</table>
+								</div>
+					</div>
+				</div>
+			</div>
+			<div class="modal-footer" style="background-color: white;">
+				<button type="button" class="btn btn-primary" onclick="save_role()">保存</button>
+				<button type="button" class="btn btn-default" onclick="parent.d.close();">取消</button>
+			</div>
+	</body>
+
+</html>

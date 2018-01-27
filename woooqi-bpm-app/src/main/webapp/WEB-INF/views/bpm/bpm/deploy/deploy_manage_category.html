@@ -1,0 +1,79 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>Deploy Manage</title>
+	<style type="text/css">
+	</style>
+	<script type="text/javascript">
+		var id = '${deployId}';
+		var name = '${name}';
+		$(document).ready(function() {
+			$.ajax({
+				type: "POST",
+				url: "${ctx}/category/getAllCategory",
+				dataType: 'json',
+				async: false,
+				success: function(datas){
+					$("#name").val(name);					
+					var data = datas.rows;
+					if(data!=null && data.size!=0){
+						for(var i = 0;i<data.length;i++){
+							var select= $("#category");
+							var option = "<option  value='"+data[i].id+"'>"+data[i].name+"</option>";
+						    select.append(option);
+						}
+					}
+				}
+			});
+		});
+		        
+		function save(){
+			var categoryId =  $("#category").val();
+			$.ajax({
+				type: "POST",
+				url: "${ctx}/deploy/setDeployGategory",
+				dataType: 'json',
+				data : {deployId : id,categoryId : categoryId},
+				async: false,
+				success: function(data){
+					if(data.code>0){
+						alert(data.msg);
+						parent.d.close();
+					}else if(data.code<0){
+						alert(data.msg);
+					}
+					parent.search();
+				}
+			});   
+		}
+		        	
+		function search(){
+			$('#data-table').bootstrapTable('refresh', {}); 
+		}
+	</script>
+</head>
+	<body>
+			<div class="row" style="height:140px">
+				<div class="col-md-12">
+						<div class="panel-body">
+								<div class="col-md-12">
+									<table>
+										<tr>
+											<td class="col-md-1 " ><label>分类名:</label></td>
+											<td class="col-md-3 form-group">
+												<select id="category" name="category" class="form-control">
+												</select>
+											</td>
+										</tr>
+									</table>
+								</div>
+						</div>
+				</div>
+			</div>
+			<div class="modal-footer" style="background-color: white;">
+				<button type="button" class="btn btn-primary" onclick="save()">保存</button>
+				<button type="button" class="btn btn-default" onclick="parent.d.close();">取消</button>
+			</div>
+	</body>
+
+</html>

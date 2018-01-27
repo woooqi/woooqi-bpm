@@ -1,0 +1,108 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>Deploy Manage</title>
+		
+	    <style type="text/css">
+	    
+	    </style>
+        <script type="text/javascript">
+	        $(document).ready(function() {
+	    		var id = '${id}';
+	    		if(id !=='' && id !==null){
+		    		$.ajax({
+		 			   type: "POST",
+		 			   url: "${ctx}/dater/getDaterById",
+		 			   dataType: 'json',
+		 			   data:{id : id},
+		 			   async: false,
+		 			   success: function(data){
+		 				  	var date = new Date(data.dater).Format("yyyy-MM-dd")
+		 				  	$("#name").val(data.name);
+		 				  	$("#date").val(date);
+		 					$("#type").val(data.type);
+		 			   }
+		    		});
+	    		}
+	    	});
+	        
+	       	function save(){
+	       		var name = $("#name").val();
+	       		var date = $("#date").val();
+	       		var type = $("#type").val();
+	       		var id = '${id}';
+	       		if($("#name").val().trim()==""){
+					alert("调休名不能为空");
+					return;
+				}
+	       		if($("#date").val().trim()==""){
+					alert("调休日期不能为空");
+					return;
+				}
+	       		if($("#type").val().trim()==""){
+					alert("调休类型不能为空");
+					return;
+				}
+	       		$.ajax({
+		 			   type: "POST",
+		 			   url: "${ctx}/dater/updateDater",
+		 			   dataType: 'json',
+		 			   data : {name:name,id:id,date:date,type:type},
+		 			   async: false,
+		 			   success: function(data){
+		 				 	if(data.code>0){
+		 				 		alert(data.msg);
+		 				 		parent.d.close();
+		 				 	}else if(data.code<0){
+		 				 		alert(data.msg);
+		 				 	}
+		 				 	parent.search();
+		 			   }
+		    		});   
+	       	}
+        	
+	        function search(){
+    	    	$('#data-table').bootstrapTable('refresh', {}); 
+    	    }
+        </script>
+	</head>
+	<body>
+			<div class="row" style="height:200px;">
+				<div class="col-lg-12">
+						<div class="panel-body">
+								<div class="col-lg-12">
+									<table>
+										<tr>
+											<td class="col-lg-1" ><label>调休名称：</label></td>
+											<td class="col-lg-4">
+												<input class="form-control" id="name" name="name" placeholder="">
+											</td>
+										</tr>
+										<tr>
+											<td class="col-lg-1" ><label>调休日期：</label></td>
+											<td class="col-lg-4">
+												<input class="form-control datepicker" id="date" name="date" readonly>
+											</td>
+										</tr>
+										<tr>
+											<td class="col-lg-1" ><label>调休类型：</label></td>
+											<td class="col-lg-4">
+												<select class="form-control" id="type" name="type" >
+													<option value="1">调休</option>
+													<option value="2">调班</option>
+												</select>
+											</td>
+										</tr>
+										
+									</table>
+								</div>
+						</div>
+				</div>
+			</div>
+			<div class="modal-footer" style="background-color: white;">
+				<button type="button" class="btn btn-primary" onclick="save()">保存</button>
+				<button type="button" class="btn btn-default" onclick="parent.d.close();">取消</button>
+			</div>
+	</body>
+
+</html>

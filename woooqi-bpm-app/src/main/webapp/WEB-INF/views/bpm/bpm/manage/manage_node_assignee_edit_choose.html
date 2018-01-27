@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+	<style type="text/css">
+		.form-control{margin-bottom: 10px;}
+		.new_input{width:200px;height: 26px;text-align: center;}
+		.fa-edit{color:#777777;}
+	</style>
+	<link rel="stylesheet" href="${ctx}/static/bootstrap/vendors/zTree_v3/css/metroStyle/metroStyle.css" type="text/css">
+	<script type="text/javascript" src="${ctx}/static/bootstrap/vendors/zTree_v3/js/jquery.ztree.core.js"></script>
+	<script language="javascript" type="text/javascript">
+	    var deptId="0";
+		var setting = {	
+	    		data: {
+	    			simpleData: {enable: true}},
+	        	callback: {
+	        		onClick: function(event, treeId, treeNode){
+	        			//alert(JSON.stringify(treeNode));
+	        			if(treeNode.isParent){
+	        				//alert("请选择子节点");
+	        				var tree = $.fn.zTree.getZTreeObj("dept");
+	        				tree.expandNode(treeNode);
+	        				return;
+	        			}
+	        			deptId = treeNode.id;
+	        			f_search();
+	        		}
+	        	}	
+	    	}; 
+		$(document).ready(function() { 
+            $.ajax({
+ 				type: "POST",
+ 				url: "${ctx}/dept/getEnableDept",
+ 				dataType: 'json',
+ 				data:null,
+ 				success: function(rs){
+ 					var nodes = rs;
+ 					$.fn.zTree.init($("#dept"), setting, nodes);
+ 					var tree = $.fn.zTree.getZTreeObj("dept");
+ 					tree.expandAll(true);
+ 					// var node = zTree.getNodeByParam('name', '平台组');
+ 		            //zTree.selectNode(node);//选择点  
+ 					
+ 				 }
+ 			}); 
+		}); 
+		function save(){
+			var selections = $('#data-table').bootstrapTable('getSelections');
+    		if (selections.length != 1) {
+    			alert("请选择一行数据");
+    			return;
+    		}
+			parent.setName(selections[0].name);
+			parent.setUserId(selections[0].id);
+			parent.d.close();
+			parent.d = null;
+		}	
+		
+		function queryParams(params) {
+    		
+	    	var param = {    
+    			pageNumber : params.pageNumber-1,    
+                pageSize : params.pageSize,
+                deptId :deptId,
+            };   
+            return param;                   
+        }
+		
+		function indexFormatter(value, row, index) {  
+            return index+1;  
+	    }
+		
+		function f_search(){
+		    	$('#data-table').bootstrapTable('refresh', {});  
+		 }
+		
+		function getTreeDept(){
+			   $.ajax({
+ 				type: "POST",
+ 				url: "${ctx}/dept/getEnableDept",
+ 				dataType: 'json',
+ 				data:null,
+ 				success: function(rs){
+ 					var nodes = rs;
+ 					$.fn.zTree.init($("#dept"), setting, nodes);
+ 					var tree = $.fn.zTree.getZTreeObj("dept");
+ 					tree.expandAll(true);
+ 					
+ 				 }
+ 			}); 
+		   }
+		function f_close(){
+			parent.d.close();
+			parent.d = null;
+		}
+		
+	</script>
+</head>
+<body>
+	<div id="wrapper">
+		<div class="row">
+			<div class="col-xs-6 ">
+				<div class="panel panel-default">
+					<div class="panel-body pre-scrollable" style="height: 140px;">
+						<ul id="dept" class="ztree"></ul>
+	            	</div>
+				</div>
+			</div>
+			<div class="col-xs-6">
+				<div class="panel panel-default pre-scrollable">
+					<div class="panel-body " style="height: 120px;">
+					 	<table width="100%" class="table table-striped table-bordered table-hover"  id="data-table" 
+									data-toggle="table"  data-click-to-Select=true 
+									data-url="${ctx}/user/getUserByDeptId" data-method="post" data-content-type="application/x-www-form-urlencoded"
+									data-query-params="queryParams" data-query-params-type="undefined" 
+									data-pagination=false data-side-pagination="server" data-page-size=20 >
+							<thead>
+								<tr>
+									<th data-radio="true" data-width="30px"></th>
+									<th data-field="index" class="text-center" data-formatter="indexFormatter" data-width="30px">序号</th>
+									<th data-field="loginName"  class="text-center" >登录名称</th>
+									<th data-field="name"  class="text-center" >名称</th>
+								</tr>
+							</thead>
+						</table>
+					 	
+					</div>	
+				</div>
+			</div>
+		</div>
+		<div class="modal-footer" style="background-color: white;">
+		 	<button type="button" class="btn btn-primary" onclick="save()">确认</button>
+			<button type="button" class="btn btn-default" onclick="f_close()">取消</button>
+		</div>
+	</div>	
+	
+</body>
+</html>

@@ -1,0 +1,184 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>Deploy Manage</title>
+		
+	    <style type="text/css">
+	    
+	    </style>
+        <script type="text/javascript">
+	        $(document).ready(function() {
+	    		var id = '${id}';
+	    		if(id !==null && id !=''){
+		    		$.ajax({
+		 			   type: "POST",
+		 			   url: "${ctx}/datasource/getDataSource",
+		 			   dataType: 'json',
+		 			   data:{dataSourceId : id},
+		 			   async: false,
+		 			   success: function(datas){
+		 				  var data = datas.rows[0];
+		 					$("#datasource_id").val(data.id);
+		 				  	$("#classname").val(data.classname);
+		 				  	$("#url").val(data.url);
+		 				  	$("#username").val(data.username);
+		 				  	$("#password").val(data.password);
+		 					$("#jndi").val(data.jndi);
+		 					
+		 			   }
+		    		});
+	    		}
+	    	});
+	        
+	        function test_datasource(){
+	        	var datasource_id = $("#datasource_id").val();
+	       		var classname = $("#classname").val();
+	       		var url = $("#url").val();
+	       		var username = $("#username").val();
+	       		var password = $("#password").val();
+	       		
+	       		if($("#name").val()==''){
+					alert("数据源名称不能为空");
+					return;
+				}
+	       		if($("#classname").val()==''){
+					alert("数据源加载驱动不能为空");
+					return;
+				}
+	       		if($("#url").val().trim()==''){
+					alert("数据源地址不能为空");
+					return;
+				}
+	       		if($("#username").val()==''){
+					alert("数据源用户不能为空");
+					return;
+				}
+	       		if($("#password").val()==''){
+					alert("数据源密码不能为空");
+					return;
+				}
+	    		$.ajax({
+		 			   type: "POST",
+		 			   url: "${ctx}/datasource/getConnection",
+		 			   dataType: 'json',
+		 			   async: false,
+		 			   data:{classname : classname, url : url,password : password, username : username},
+		 			   success: function(data){
+		 				   if(data.code>=0){
+		 					   alert(data.msg);
+		 				   }else{
+		 					   alert(data.msg);
+		 				   }
+		 				search();   
+		 			   }
+		 			}); 	
+	        }
+	        
+	       	function save(){
+	       		var oldId = '${id}';
+	       		var datasource_id = $("#datasource_id").val();
+	       		var classname = $("#classname").val();
+	       		var url = $("#url").val();
+	       		var username = $("#username").val();
+	       		var password = $("#password").val();
+	       		var  jndi　= $("#jndi").val();
+	       		if($("#name").val()==''){
+					alert("数据源名称不能为空");
+					return;
+				}
+	       		if($("#classname").val()==''){
+					alert("数据源加载驱动不能为空");
+					return;
+				}
+	       		if($("#url").val().trim()==''){
+					alert("数据源地址不能为空");
+					return;
+				}
+	       		if($("#username").val()==''){
+					alert("数据源用户不能为空");
+					return;
+				}
+	       		if($("#password").val()==''){
+					alert("数据源密码不能为空");
+					return;
+				}
+	       		
+	       		$.ajax({
+		 			   type: "POST",
+		 			   url: "${ctx}/datasource/updateDataSource",
+		 			   dataType: 'json',
+		 			   async: false,
+		 			   data : {oldId:oldId,dataSourceId:datasource_id,classname:classname,url:url,username:username,password:password,jndi:jndi},
+		 			   success: function(data){
+		 				 	if(data.code>0){
+		 				 		alert(data.msg);
+		 				 		parent.d.close();
+		 				 		parent.search();
+		 				 	}else if(data.code<0){
+		 				 		alert(data.msg);
+		 				 	}
+		 				 	parent.search();
+		 			   }
+		    		});   
+	       	}
+        	
+	        function search(){
+    	    	$('#data-table').bootstrapTable('refresh', {}); 
+    	    }
+        </script>
+	</head>
+	<body>
+			<div class="row">
+				<div class="col-lg-12">
+						<div class="panel-body">
+								<div class="col-lg-12">
+									<table>
+										<tr>
+											<td class="col-lg-1" ><label>数据源名称：</label></td>
+											<td class="col-lg-4">
+												<input class="form-control" id="datasource_id" name="datasource_id" >
+											</td>
+										</tr>
+										<tr>
+											<td class="col-lg-1" ><label>数据源加载驱动：</label></td>
+											<td class="col-lg-4">
+												<input class="form-control" id="classname" name="classname" >
+											</td>
+										</tr>
+										<tr>
+											<td class="col-lg-1" ><label>数据源地址：</label></td>
+											<td class="col-lg-4">
+												<input class="form-control" id="url" name="url" >
+											</td>
+										</tr>
+										<tr>
+											<td class="col-lg-1" ><label>登陆名：</label></td>
+											<td class="col-lg-4">
+												<input class="form-control" id="username" name="username">
+											</td>
+										</tr>
+										<tr>
+											<td class="col-lg-1" ><label>密码：</label></td>
+											<td class="col-lg-4">
+												<input class="form-control" id="password" name="password">
+											</td>
+										</tr>
+										<tr>
+											<td class="col-lg-1" ><label>jndi：</label></td>
+											<td class="col-lg-4">
+												<input class="form-control" id="jndi" name="jndi">
+											</td>
+										</tr>
+									</table>
+								</div>
+						</div>
+				</div>
+			</div>
+			<div class="modal-footer" style="background-color: white;">
+				<button type="button" class="btn btn-primary" onclick="test_datasource()">重新加载数据源</button>
+				<button type="button" class="btn btn-primary" onclick="save()">保存</button>
+				<button type="button" class="btn btn-default" onclick="parent.d.close();">取消</button>
+			</div>
+	</body>
+
+</html>

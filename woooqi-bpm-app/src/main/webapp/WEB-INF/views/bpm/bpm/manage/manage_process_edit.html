@@ -1,0 +1,138 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>ModelEdit</title>
+		
+	    <style type="text/css"></style>
+        <script type="text/javascript">
+        $(document).ready(function() {
+        	var definitionId="${definitionId}"
+       		$.ajax({
+				   type: "POST",
+				   url: "${ctx}/category/getAllCategory",
+				   dataType: 'json',
+				   async: false,
+				   data:null,
+				   success: function(datas){
+					   var data = datas.rows;
+					   var option ='';
+					   if(data!=null){
+						   for(var i = 0 ;i<data.length;i++){
+							   option += "<option value='"+data[i].id+"'>"+data[i].name+"</option>";
+						   }
+						   $("#category").append(option);
+					   }
+					   
+					  
+					   
+				   }
+				});
+        	$.ajax({
+				type: "POST",
+				url: "${ctx}/process/getByDefinitionId",
+				dataType: 'json',
+				data:{"definitionId":definitionId},
+				success: function(datas){
+					if(datas.code>0){
+						var data = datas.rows;
+					    $("#id").val(data.id);
+					    $("#definitionId").val(data.definitionId);
+						$("#name").val(data.name);
+						var opts = document.getElementById("category").options;
+						if(data.category!=null){
+							for(var i=0;i<opts.length;i++){
+								if(opts[i].text==data.category){
+									$("#category").val(opts[i].value);	
+								}
+							}
+						}
+						
+						$("#description").val(data.description);
+						$("#startEventClass").val(data.startEventClass);	
+						$("#endEventClass").val(data.endEventClass);
+					}
+				}
+			});
+        	
+        	
+        	
+        });
+        	function save(){
+        		var id = $("#id").val();
+        		var definitionId = "${definitionId}";
+        		var name = $("#name").val().trim();
+        		var category = $("#category").val();
+        		var description = $("#description").val().trim();
+        		var startEventClass = $("#startEventClass").val().trim();
+        		var endEventClass = $("#endEventClass").val().trim();
+        		$.ajax({
+					   type: "POST",
+					   url: "${ctx}/process/saveAndFlushProcessManage",
+					   dataType: 'json',
+					   async: true,
+					   data:{id:id , definitionId:definitionId ,name:name, category:category, description:description,startEventClass:startEventClass,endEventClass:endEventClass},
+					   success: function(data){
+						   if(data.code > 0 ){
+							    alert("操作成功");
+								parent.d.close();
+								parent.f_search();
+						   }else{
+							   alert(data.msg);
+						   }
+						   
+					   }
+					});
+        	}
+        </script>
+		
+	</head>
+	
+	<body>
+		<div id="wrapper">
+			<div class="modal-body">
+				<div class="row">
+					<div class="col-lg-12">
+						<div class="panel-body">
+							<table>
+	
+								<tr>
+								<input class="form-control hidden" type="text" id="id" name="id" style="width: 100%;"  />
+								<input class="form-control hidden" type="text" id="definitionId" name="definitionId" style="width: 100%;"  />
+									<td ><label>名称:</label></td>
+									<td><input class="form-control" type="text" id="name" name="name" style="width: 100%;" readonly="readonly"/></td>
+								</tr>
+								<tr>
+									<td ><label>分类:</label></td>
+										<td class="form-group">
+												<select id="category" name="category" class="form-control">
+                      								<!-- <option value="1" selected="selected">普通</option>
+                      								<option value="0">定制</option> -->
+												</select>
+											</td>
+								</tr>
+								
+							    <tr>
+									<td ><label>描述:</label></td>
+									<td><input class="form-control" type="text" id="description" name="description" style="width: 100%;"/></td>
+								</tr>	
+								<tr>
+									<td ><label>启动事件:</label></td>
+									<td><input class="form-control" type="text" id="startEventClass" name="startEventClass" style="width: 100%;"/></td>
+								</tr>
+								<tr>
+									<td ><label>结束事件:</label></td>
+									<td><input class="form-control" type="text" id="endEventClass" name="endEventClass" style="width: 100%;"/></td>
+								</tr>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary" onclick="save()">保存</button>
+				<button type="button" class="btn btn-default" onclick="parent.d.close();">取消</button>
+			</div>
+		</div>
+	</body>
+
+</html>

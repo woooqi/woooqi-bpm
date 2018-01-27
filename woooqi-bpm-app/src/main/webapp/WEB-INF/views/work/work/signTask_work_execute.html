@@ -1,0 +1,66 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>edit Cloumn</title>
+		
+	    <style type="text/css">
+	    </style>
+        <script type="text/javascript">
+    	var win_width = $(window).width();
+	    var win_height = $(window).height();
+        
+	        $(document).ready(function() {
+	    		
+	    	});
+	        
+	        function buttonHandler(button){
+	        	 $.ajax({
+		 			   type: "POST",
+		 			   url: "${ctx}/handler/buttonhandler",
+		 			   dataType: 'json',
+		 			   data:{actId : '${actId}',instanceId:'${instanceId}',button:button,taskId:"${taskId}"},
+		 			   async: false,
+		 			   success: function(data){
+		 				  	if(data.code>0){
+		 				  		alert("操作成功");
+		 				  	}
+		 				  	
+		 				  	parent.d.close();
+		 				  	parent.search();
+		 			   }
+		    		}); 
+	        	
+	        	
+	        	
+	        	
+	        }
+	    		
+	       
+        </script>
+	</head>
+	<body>
+			<div class="row">
+				<div class="col-md-12">
+						<div class="col-md-12">
+							<table>
+								<tr>
+									<td class="col-md-1 text-center" ><label>处理意见:</label></td>	
+									<td class="col-md-3 form-group">
+										<textarea id="advice" class="form-control" rows="4" style="resize: none;">
+									</textarea></td>
+									
+								</tr>
+								
+								
+							</table>
+						</div>
+				</div>
+			</div>
+			<div class="modal-footer" style="background-color: white;">
+				<button type="button" class="btn btn-primary" onclick="buttonHandler('signinTask')">通过</button>
+				<button type="button" class="btn btn-default" onclick="buttonHandler('signoutTask');">反对</button>
+				<button type="button" class="btn btn-default" onclick="parent.d.close();">取消</button>
+			</div>
+	</body>
+
+</html>

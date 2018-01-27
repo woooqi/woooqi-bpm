@@ -1,0 +1,85 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head > 
+    <meta charset="UTF-8">  
+        <title>Index</title>
+        
+		<style type="text/css">
+			.task{height: 200px;}
+			.menu{z-index:500; float: left;position: relative;width: 240px;-webkit-border-radius: 6px 6px 6px 6px;-moz-border-radius: 6px 6px 6px 6px;border-radius: 6px 6px 6px 6px;}
+	    	.menu a{color: #777777}
+	    	.menu a:hover, a:focus{color: #333333}
+	    	#wrapper{float: left;width:calc(100% - 240px);min-height: 400px;padding-left: 10px;}
+			
+			#side-menu a.active {background-color: #eeeeee;}
+        </style>
+		<script type="text/javascript">
+        	$(document).ready(function() {
+        		_initHtml(function(){
+        			$("#side-menu").children("li:eq(1)").addClass("active");
+					$('#side-menu').metisMenu();
+        		},"${index}");
+        	})
+        </script>
+    </head>
+    
+    <body>
+    
+    	<div class="container-fluid">
+	    	<div class="menu" >
+				<nav class="navbar navbar-default navbar-static-top" role="navigation" >
+		            <div class="navbar-default sidebar" role="navigation">
+		                <div class="sidebar-nav navbar-collapse" >
+		                
+		                    <ul class="nav" id="side-menu">
+		                       
+		                     </ul>
+		                      
+		                </div>
+		            </div>
+		        </nav>
+			</div>
+    
+		        <div id="wrapper">
+					<div class="row">
+		                <div class="col-lg-6">
+		                    <div class="panel panel-default">
+		                        <div class="panel-heading">待办任务</div>
+		                        <div class="panel-body task">
+		                        	<p>待办任务</p>
+		                        </div>
+		                    </div>
+		                </div>
+		                <div class="col-lg-6">
+		                    <div class="panel panel-default">
+		                        <div class="panel-heading">已办任务</div>
+		                        <div class="panel-body task">
+		                          	<p>待办任务</p>
+		                        </div>
+		                    </div>
+		                </div>
+		            </div>
+		            <div class="row" >
+		                <div class="col-lg-6">
+		                    <div class="panel panel-default">
+		                        <div class="panel-heading">我的流程</div>
+		                        <div class="panel-body task">
+		                            <p>我的流程</p>
+		                        </div>
+		                    </div>
+		                </div>
+		                <div class="col-lg-6">
+		                    <div class="panel panel-default">
+		                        <div class="panel-heading">历史流程</div>
+		                        <div class="panel-body task">
+		                            <p>历史流程</p>
+		                        </div>
+		                    </div>
+		                </div>
+		            </div>
+		        </div>
+		        
+		  	</div>
+    </body>
+
+</html>

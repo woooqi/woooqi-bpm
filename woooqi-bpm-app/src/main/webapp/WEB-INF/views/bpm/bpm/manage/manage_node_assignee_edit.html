@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title></title>
+<style type="text/css">
+	.form-control{margin-bottom: 10px;}
+	.new_input{width:200px;height: 26px;text-align: center;}
+	.new_input{height: 24px;text-align: center;margin:0px;padding: 0px;}
+	.fa-edit{color:#777777;}
+	.alert-info {
+    color: #31708f;background-color: #f8f8f8;border-color: #f8f8f8;}
+</style>
+<script language="javascript" type="text/javascript">
+	var win_width = $(window).width();
+	var win_height = $(window).height();
+	var id='';
+	var d = null;
+	var assignTypes =null;
+	
+	var assign_type = "0";
+	
+	$(document).ready(function() {
+		var activitiId="${activitiId}";
+		var definitionId="${definitionId}";	
+		
+		$.ajax({
+			type: "POST",
+			url: "${ctx}/processNodeAssign/getNodeManageAssignByActId",
+			dataType: 'json',
+			async:false,
+			data:{"activitiId":"${activitiId}"},
+			success: function(datas){
+				$("input[name='initiator'][value="+datas.initiator+"]").attr("checked",true);
+				$("#policy").val(datas.policy);
+				if(datas.initiator=='1'){
+					$("#type").attr("disabled",true);
+					$("#name").attr("disabled",true);
+					$("#confirm").attr("disabled",true);
+				}else{
+					$("#type").attr("disabled",false);
+					$("#name").attr("disabled",false);
+					$("#confirm").attr("disabled",false);
+				}
+				id = datas.id;	
+			 }
+		});
+		if(id!=null){
+			$.ajax({
+				type: "POST",
+				url: "${ctx}/processNodeAssign/getProcessNodeAssignTypeByAssign",
+				dataType: 'json',
+				async:false,
+				data:{"assignId":id},
+				success: function(datas){
+					assignTypes = datas;
+				}
+			});
+		}
+		if(assignTypes!=null&&assignTypes.length!=0){
+			for(var i=0;i<assignTypes.length;i++){
+				if(assignTypes[i].type=='1'){
+					$.ajax({
+						type: "POST",
+						url: "${ctx}/user/getUserByAssignId",
+						dataType: 'json',
+						async:false,
+						data:{"typeId":assignTypes[i].id},
+						success: function(datas){
+							var data = datas.rows;
+							if(data!=null && data.length!=0){
+							for(var i = 0;i<data.length;i++){
+								var table = $("#para_table");	
+								var tr = "<tr>"
+										+ "<td style='text-align: center; width: 50px;' name='INDEX' >"+($("#para_tbody").find("tr").length+1)+"</td>"
+										+ "<td style='text-align: center;display: none;' name='id'>"+data[i].id+"</td>"
+										+ "<td style='text-align: center;' name='loginName'>"+data[i].loginName+"</td>"
+										+ "<td style='text-align: center;' name='name'>"+data[i].name+"</td>"
+										+ "<td style='text-align: center;' name='dept'>"+data[i].dept.name+"</td>"
+										+"<td style=\"text-align: center;\" name=\"op\"><a  href='javascript: void(0)' onclick=\"del(this)\">删除</a></td>";
+										+"</tr>";
+								table.append(tr);
+							  }
+							}
+							
+						 }
+					}); 
+					
+				}else if(assignTypes[i].type=='2'){
+					$.ajax({
+						type: "POST",
+						url: "${ctx}/user/getUserByAssignId",
+						dataType: 'json',
+						async:false,
+						data:{"typeId":assignTypes[i].id},
+						success: function(datas){
+							var data = datas.rows;
+							if(data!=null && data.length!=0){
+							for(var i = 0;i<data.length;i++){
+								var table = $("#para_table_candidate");	
+								var tr = "<tr>"
+										+ "<td style='text-align: center; width: 50px;' name='INDEX' >"+($("#para_tbody_candidate").find("tr").length+1)+"</td>"
+										+ "<td style='text-align: center;display: none;' name='id'>"+data[i].id+"</td>"
+										+ "<td style='text-align: center;' name='loginName'>"+data[i].loginName+"</td>"
+										+ "<td style='text-align: center;' name='name'>"+data[i].name+"</td>"
+										+ "<td style='text-align: center;' name='dept'>"+data[i].dept.name+"</td>"
+										+"<td style=\"text-align: center;\" name=\"op\"><a  href='javascript: void(0)' onclick=\"del(this)\">删除</a></td>";
+										+"</tr>";
+								table.append(tr);
+							  }
+							}
+							
+						 }
+					}); 
+					
+					
+				}else if(assignTypes[i].type=='3'){
+					 $.ajax({
+							type: "POST",
+							url: "${ctx}/processNodeAssign/getGroupByAssignId",
+							dataType: 'json',
+							async:false,
+							data:{"typeId":assignTypes[i].id},
+							success: function(datas){
+								//alert(JSON.stringify())
+								 if(datas!=null){
+									if(datas['roles']!=null && datas['roles'].length!=0){
+										for(var i = 0;i<datas['roles'].length;i++){
+											//alert(datas['roles']);
+											var table = $("#para_table_role");	
+											//if(datas['roles'][i].logic=="1"){
+											//	logic='与';
+											//}else if(datas['roles'][i].logic=="3"){
+											//	logic='非';
+											//}else{
+											//	logic='或';
+											//}
+											var tr = "<tr>"
+													+ "<td style='text-align: center; width: 50px;' name='INDEX' >"+($("#para_tbody_role").find("tr").length+1)+"</td>"
+													+ "<td style='text-align: center;width: 300px;display: none;' name='id'>"+datas['roles'][i].role.id+"</td>"
+													+ "<td style='text-align: center;' name='type'>角色</td>"
+													+ "<td style='text-align: center;' name='name'>"+datas['roles'][i].role.name+"</td>"
+													+ "<td style='text-align: center;' name='code'>"+datas['roles'][i].role.roleCode+"</td>"
+													//+ "<td style='text-align: center;width:100px;'  key='"+datas['roles'][i].logic+"' name='logic' onclick='td_select(this)' class='new_input'>"+logic+"</td>"
+													+"<td style=\"text-align: center;\" name=\"op\"><a  href='javascript: void(0)' onclick=\"del(this)\">删除</a></td>";
+													+"</tr>";
+											table.append(tr);
+										  }
+										
+									}
+									if(datas['depts']!=null && datas['depts'].length!=0){
+										for(var i = 0;i<datas['depts'].length;i++){
+											var table = $("#para_table_role");	
+											//if(datas['depts'][i].logic=="1"){
+											//	logic='与';
+											//}else if(datas['depts'][i].logic=="3"){
+											//	logic='非';
+											//}else{
+											//	logic='或';
+											//}
+											var tr = "<tr>"
+													+ "<td style='text-align: center; width: 50px;' name='INDEX' >"+($("#para_tbody_role").find("tr").length+1)+"</td>"
+													+ "<td style='text-align: center; width: 300px;display: none;' name='id'>"+datas['depts'][i].dept.id+"</td>"
+													+ "<td style='text-align: center;' name='type'>部门</td>"
+													+ "<td style='text-align: center;' name='name'>"+datas['depts'][i].dept.name+"</td>"
+													+ "<td style='text-align: center;' name='code'>"+datas['depts'][i].dept.deptCode+"</td>"
+												//	+ "<td style='text-align: center;width:100px;'  key='"+datas['depts'][i].logic+"' name='logic' onclick='td_select(this)' class='new_input'>"+logic+"</td>"
+													+"<td style=\"text-align: center;\" name=\"op\"><a  href='javascript: void(0)' onclick=\"del(this)\">删除</a></td>";
+													+"</tr>";
+											table.append(tr);
+										  }
+										
+									}
+									if(datas['posts']!=null && datas['posts'].length!=0){
+										for(var i = 0;i<datas['posts'].length;i++){
+											var table = $("#para_table_role");	
+											//if(datas['posts'][i].logic=="1"){
+											//	logic='与';
+											//}else if(datas['posts'][i].logic=="3"){
+											//	logic='非';
+											//}else{
+											//	logic='或';
+											//}
+											var tr = "<tr>"
+													+ "<td style='text-align: center; width: 50px;' name='INDEX' >"+($("#para_tbody_role").find("tr").length+1)+"</td>"
+													+ "<td style='text-align: center; width: 300px;display: none;' name='id'>"+datas['posts'][i].post.id+"</td>"
+													+ "<td style='text-align: center;' name='type'>岗位</td>"
+													+ "<td style='text-align: center;' name='name'>"+datas['posts'][i].post.name+"</td>"
+													+ "<td style='text-align: center;' name='code'>"+datas['posts'][i].post.postCode+"</td>"
+											//		+ "<td style='text-align: center;width:100px;'  key='"+datas['posts'][i].logic+"' name='logic' onclick='td_select(this)' class='new_input'>"+logic+"</td>"
+													+"<td style=\"text-align: center;\" name=\"op\"><a  href='javascript: void(0)' onclick=\"del(this)\">删除</a></td>";
+													+"</tr>";
+											table.append(tr);
+										  }
+										
+									}
+								} 
+							}
+						}); 
+					
+					
+				}
+			}
+		}
+		
+		$("#name").click(function(){
+			//alert(JSON.stringify(d));
+			if(d != null && JSON.stringify(d)!='{}'){
+				return;
+			}
+			if(assign_type == "0"){
+				d = dialog({
+					title: '人员选择',
+					url : '${ctx}/edit?path=bpm/bpm/manage/manage_node_assignee_edit_choose&flowElementId='+"${flowElementId}",
+					width : win_width*0.7,
+					height : 210,
+					close:false
+		   		});
+		   		d.show(document.getElementById('name'));
+			}else {
+				d = dialog({
+					title: '人员组选择',
+					url : '${ctx}/edit?path=bpm/bpm/manage/manage_node_assignee_edit_role_choose',
+					width : win_width*0.7,
+					height : 290,
+					close:false
+		   		});
+		   		d.show(document.getElementById('name'));	
+			}
+		 });
+		
+		$("#type").on("change",function(){
+			var val = $("#type").val();
+			if(val == "3"){
+				$("#assign_name").text("人员组:");
+				$("#role_info").css("display","block");
+				$("#candidate_info").css("display","none");
+				$("#assign_info").css("display","none");
+				assign_type = "1";
+			}else if(val=="2"){
+				$("#assign_name").text("人员:");
+				$("#candidate_info").css("display","block");
+				$("#assign_info").css("display","none");
+				$("#role_info").css("display","none");
+				assign_type = "0";
+			}else{
+				$("#assign_name").text("人员:");
+				$("#assign_info").css("display","block");
+				$("#candidate_info").css("display","none");
+				$("#role_info").css("display","none");
+				assign_type = "0";
+			}
+		});
+		
+		
+		
+	}); 
+	
+	function setName(name){
+		$("#name").val(name);
+	}
+	function setUserId(id){
+		$("#name").attr("text",id);
+		
+	}
+	function setAssignType(assignType){
+		$("#name").attr("assignType",assignType);
+		
+	}
+	
+	function confirm(){
+		 var val = $("#type").val();
+		 var assignType = $("#name").attr("assignType");
+		 if($("#name").attr("text")==null || $("#name").attr("text")==''){
+				if(val == "3"){
+					alert("请选择人员组");
+				}else{
+					alert("请选择人员");
+				}
+		
+			return;
+		} 
+		if(val == "3"){
+			var flag =0;
+			$("#para_table_role tr").each(function(index,element){
+				
+				$(this).children().each(function(i,e){
+					if($(e).attr("name")=='id'){
+						if($("#name").attr("text")==$(e).text()){
+							alert("你已为配置该人员组，请删除后在重新添加!");
+							flag = 1;
+							return;
+						}
+					}
+					
+				})
+				
+			});
+			if(flag==1){
+				return;
+			}
+			if(assignType=='角色'){
+				$.ajax({
+					type: "POST",
+					url: "${ctx}/role/getRoleById",
+					dataType: 'json',
+					data:{id:$("#name").attr("text")},
+					success: function(data){
+						//alert(JSON.stringify(data));
+						    var table = $("#para_table_role");
+							var tr = "<tr>"
+									+ "<td style='text-align: center; width: 50px;' name='INDEX' >"+($("#para_tbody_role").find("tr").length+1)+"</td>"
+									+ "<td style='text-align: center;display: none;' name='id'>"+data.id+"</td>"
+									+ "<td style='text-align: center;' name='type'>角色</td>"
+									+ "<td style='text-align: center;' name='name'>"+data.name+"</td>"
+									+ "<td style='text-align: center;' name='Code'>"+data.roleCode+"</td>"
+									//+ "<td style='text-align: center;width:100px;' name='logic' onclick='td_select(this)' class='new_input'>或</td>"
+									+"<td style=\"text-align: center;\" name=\"op\"><a  href='javascript: void(0)' onclick=\"del(this)\">删除</a></td>";
+									+"</tr>";
+							table.append(tr);
+						
+					 }
+				});
+				
+			}else if(assignType=='部门'){
+				$.ajax({
+					type: "POST",
+					url: "${ctx}/dept/getDeptById",
+					dataType: 'json',
+					data:{id:$("#name").attr("text")},
+					success: function(data){
+						//alert(JSON.stringify(data));
+						    var table = $("#para_table_role");	
+							var tr = "<tr>"
+									+ "<td style='text-align: center; width: 50px;' name='INDEX' >"+($("#para_tbody_role").find("tr").length+1)+"</td>"
+									+ "<td style='text-align: center;display: none;' name='id'>"+data.id+"</td>"
+									+ "<td style='text-align: center;' name='type'>部门</td>"
+									+ "<td style='text-align: center;' name='name'>"+data.name+"</td>"
+									+ "<td style='text-align: center;' name='Code'>"+data.deptCode+"</td>"
+									//+ "<td style='text-align: center;width:100px;' name='logic' onclick='td_select(this)' class='new_input'>或</td>"
+									+"<td style=\"text-align: center;\" name=\"op\"><a  href='javascript: void(0)' onclick=\"del(this)\">删除</a></td>";
+									+"</tr>";
+							table.append(tr);
+						
+					 }
+				});
+				
+			}else if(assignType=='岗位'){
+				$.ajax({
+					type: "POST",
+					url: "${ctx}/post/getPostById",
+					dataType: 'json',
+					data:{id:$("#name").attr("text")},
+					success: function(data){
+						//alert(JSON.stringify(data));
+						    var table = $("#para_table_role");	
+							var tr = "<tr>"
+									+ "<td style='text-align: center; width: 50px;' name='INDEX' >"+($("#para_tbody_role").find("tr").length+1)+"</td>"
+									+ "<td style='text-align: center;display: none;' name='id'>"+data.id+"</td>"
+									+ "<td style='text-align: center;' name='type'>岗位</td>"
+									+ "<td style='text-align: center;' name='name'>"+data.name+"</td>"
+									+ "<td style='text-align: center;' name='Code'>"+data.postCode+"</td>"
+								//	+ "<td style='text-align: center;width:100px;' name='logic' onclick='td_select(this)' class='new_input'>或</td>"
+									+"<td style=\"text-align: center;\" name=\"op\"><a  href='javascript: void(0)' onclick=\"del(this)\">删除</a></td>";
+									+"</tr>";
+							table.append(tr);
+						
+					 }
+				});
+				
+			}
+		}else{
+			var flag =0;
+			if(val == "1"){		
+				var length = $("#para_tbody").find("tr").length;
+				if(length==1){
+					alert("你只能配置一位负责人，请删除后在重新添加!");
+					return;
+				}
+				$("#para_table tr").each(function(index,element){
+					
+					$(this).children().each(function(i,e){
+						if($(e).attr("name")=='id'){
+							if($("#name").attr("text")==$(e).text()){
+								alert("你已为配置该员工，请删除后在重新添加!");
+								flag = 1;
+								return;
+							}
+						}
+						
+					})
+					
+				});
+			}else if(val=="2"){
+				$("#para_table_candidate tr").each(function(index,element){
+					
+					$(this).children().each(function(i,e){
+						if($(e).attr("name")=='id'){
+							if($("#name").attr("text")==$(e).text()){
+								alert("你已为配置该员工，请删除后在重新添加!");
+								flag = 1;
+								return;
+							}
+						}
+						
+					})
+					
+				});	
+			}
+			
+			
+			if(flag==1){
+				return;
+			}
+		$.ajax({
+				type: "POST",
+				url: "${ctx}/user/getUserById",
+				dataType: 'json',
+				data:{id:$("#name").attr("text")},
+				success: function(data){
+					//alert(JSON.stringify(data));
+					var tr = "<tr>"
+								+ "<td style='text-align: center; width: 50px;' name='INDEX' >"+($("#para_tbody").find("tr").length+1)+"</td>"
+								+ "<td style='text-align: center;display: none;' name='id'>"+data.id+"</td>"
+								+ "<td style='text-align: center;' name='loginName'>"+data.loginName+"</td>"
+								+ "<td style='text-align: center;' name='name'>"+data.name+"</td>"
+								+ "<td style='text-align: center;' name='dept'>"+data.dept.name+"</td>"
+								+"<td style=\"text-align: center;\" name=\"op\"><a  href='javascript: void(0)' onclick=\"del(this)\">删除</a></td>";
+								+"</tr>";
+					if(val=="1"){
+						$("#para_tbody").append(tr);
+					}else{
+						$("#para_tbody_candidate").append(tr);
+					}
+					
+				 }
+			}); 
+		}
+		
+	}
+	
+	function del(obj){
+		$(obj).parent().parent().remove();
+	}
+	function save(){
+		var type = $("#type").val();
+		var policy = $("#policy").val();
+		var initiator = $('.initiator:radio:checked').val();
+		if(!initiator){
+			alert("请选择是否同发起人");
+			return;
+		}
+		
+
+		var userIds='';
+		var roleIds='';
+		
+		if(type == "3"){//候选组
+			var assignGroups = [];
+			$("#para_table_role tbody tr").each(function(index,element){
+				//alert($(element).find('td[name="assign_type"]').html());
+				//var logic='2';
+				//if($(element).find('td[name="logic"]').html()=='与'){
+				//	logic='1';
+				//}else if($(element).find('td[name="logic"]').html()=='非'){
+			 	//	logic='3';
+				//}
+				var assignGroup;
+				assignGroup = {id:$(element).find('td[name="id"]').text(),type:$(element).find('td[name="type"]').text(),logic:'1'};
+				//assignGroup = {id:$(element).find('td[name="id"]').text(),type:$(element).find('td[name="type"]').text()};
+				assignGroups.push(assignGroup);
+				
+			});
+			//alert(JSON.stringify(assignGroups));
+			$.ajax({
+				type: "POST",
+				url: "${ctx}/processNodeAssign/saveGroupProcessNodeAssign",
+				dataType: 'json',
+				data:{id:id,activitiId:"${activitiId}",definitionId:"${definitionId}",initiator:initiator,type:type,policy:policy,assignGroups:JSON.stringify(assignGroups)},
+				success: function(datas){
+					if(datas.code>0){
+						alert("人员组配置成功");
+						//parent.d.close();
+						location.reload();
+					}else{
+						alert(data.msg);
+					}
+					
+				 }
+			}); 
+			
+		
+		}else{
+			if(initiator=='1'){
+				
+			}else{
+				if(type == "1"){		
+					var length = $("#para_tbody").find("tr").length;
+					if(length!=1&&length!=0){
+						alert("你只能配置一位委派人，请删除后在重新添加!");
+						return;
+					}
+					$("#para_tbody tr").each(function(index,element){
+						
+						$(this).children().each(function(i,e){
+							if($(e).attr("name")=='id'){
+								userIds += ","+$(e).text();
+							}
+							
+						})
+						
+					});
+					userIds = userIds.substring(1);
+				}else{
+					$("#para_tbody_candidate tr").each(function(index,element){
+						
+						$(this).children().each(function(i,e){
+							if($(e).attr("name")=='id'){
+								userIds += ","+$(e).text();
+							}
+							
+						})
+						
+					});
+					userIds = userIds.substring(1);
+				}
+			}
+			
+			$.ajax({
+				type: "POST",
+				url: "${ctx}/processNodeAssign/saveProcessNodeAssign",
+				dataType: 'json',
+				data:{id:id,activitiId:"${activitiId}",definitionId:"${definitionId}",initiator:initiator,type:type,policy:policy,userIds:userIds},
+				success: function(datas){
+					if(datas.code>0){
+						alert("人员配置成功");
+						//parent.d.close();
+						location.reload();
+					}else{
+						alert(data.msg);
+					}
+					
+				 }
+			}); 
+			
+		}
+		
+		
+	
+	
+		//alert(userIds);
+		
+		
+		
+	}
+	function initiator(val){
+		if(val==1){
+			$("#type").val("1");
+			$("#type").attr("disabled",true);
+			$("#name").attr("disabled",true);
+			$("#para_tbody_candidate").empty();
+			$("#para_tbody_role").empty();
+			$("#para_tbody").empty();
+			$("#confirm").attr("disabled",true);
+		}else{
+			$("#type").attr("disabled",false);
+			$("#name").attr("disabled",false);
+			$("#confirm").attr("disabled",false);
+		}
+		
+		
+	}
+	
+	function td_select(tdobject) {
+		var td = $(tdobject);
+		td.attr("onclick", "");
+		var text = td.val();
+		td.html(""); 
+		var select = $("<select>");
+		select.attr("class", "new_input");
+		select.attr("id","td_select");
+		select.css("width",$("#th_width").width());
+		var option1 = $("<option>");
+	    option1.value = '1';
+	    option1.html("与");
+	    select.append(option1);
+	    var option2 = $("<option>");
+	    option2.value = '2';
+	    option2.html("或");
+	    select.append(option2);
+	    var option3 = $("<option>");
+	    option3.value = '3';
+	    option3.html("非");
+	    select.append(option3);
+		//鼠标离开
+		select.bind("blur", function() {
+			var selectnode = $(this);
+			var selecttext = selectnode.val();
+			
+			var tdNode = selectnode.parent();
+			tdNode.html(selecttext);
+			tdNode.attr("onclick", "td_select(this)");
+		});
+		//将文本框加入到td中  
+		td.append(select);
+		var t = select.val();
+		select.val("").focus().val(t);
+		//清除点击事件  
+		td.unbind("click");
+	}
+		
+</script>
+</head>
+<body>
+	<div id="wrapper">
+		<div class="row">
+			<div class="col-xs-12">
+				<div class="panel panel-default">
+					<div class="panel-body">
+						<table style="width: 100%">						
+							<tr>
+                     			
+                     			<td class="col-xs-1 text-right"><label class="text-right">分配策略:</label></td>
+                     			<td class="col-xs-4 form-group">
+                     				<select id="policy" name="policy" class="form-control">
+									<option value="9">无</option>
+                     					<option value="0">当只有一人是采用独占策略</option>
+                     					<option value="1">资源中任务最少者</option>
+                     					<option value="2">资源中随机分配</option>
+								</select>
+							</td>
+							<td class="col-xs-2 text-right"><label class="text-right">是否同发起人:</label></td>
+							<td class="col-xs-4 form-group" >
+                   			<label class="radio-inline ">
+                                 <input type="radio" class="initiator" name="initiator" value="1" onclick="initiator(1)">是
+                              </label>
+                              <label class="radio-inline">
+                               	<input type="radio" class="initiator" name="initiator"  checked="checked" value="0"  onclick="initiator(0)">否
+                              </label>
+						    </td>
+							
+                     			<td class="col-xs-1 "></td>
+     
+                     		</tr>
+                     		<tr>
+                     		<td class="col-xs-1 text-right"><label class="text-right">人员类型:</label></td>
+                     			<td class="col-xs-4  form-group">
+                     				<select id="type" name="type" class="form-control">
+                     					<option value="1">委派人</option>
+                     					<option value="2">候选人</option>
+                     					<option value="3">候选组</option>
+                     				</select>
+                     			</td>
+                     		<td class="col-xs-2 text-right"><label id="assign_name">人员:</label></td>
+                     		<td class="col-xs-4 "><input id="name" text="" assignType="" class="form-control"  placeholder="请选择人员"/></td>
+                     		<td class="col-xs-1 text-right"><button id="confirm" style="margin-bottom: 10px;" type="button" class="btn btn-success" onclick="confirm()">确认</button> </td>
+                     		</tr>
+                     	</table>
+                   </div>
+                   </div>
+			
+			</div>
+		</div>
+		<div class="row" id="assign_info">
+ 			<div class="col-lg-12">
+ 				<div class="panel panel-default">
+ 					<div class="panel-heading">人员信息</div>
+					<div class="panel-body pre-scrollable" style="height: 150px;">
+						 <table class="table table-striped " id="para_table" style="word-break:break-all; word-wrap:break-all;">
+	                       	<thead>
+								<tr>
+									<th style="text-align: center; width: 50px;" name="INDEX" >序号</th>
+									<th style="text-align: center; width: 320px;display: none;" name="id" >编号</th>
+									<th style="text-align: center;" name="loginName">登录名</th>
+									<th style="text-align: center;" name="name">姓名</th>
+									<th style="text-align: center;" name="department">部门</th>
+									<th style="text-align: center;" name="op">操作</th>
+									</tr>
+							</thead>
+							<tbody id="para_tbody">
+			                </tbody>
+					 	</table>  
+					</div>		
+				</div>
+			</div>
+		</div>
+		
+		<div class="row" id="candidate_info" style="display: none;">
+ 			<div class="col-lg-12">
+ 				<div class="panel panel-default">
+ 					<div class="panel-heading">人员信息</div>
+					<div class="panel-body pre-scrollable" style="height: 150px;">
+						 <table class="table table-striped " id="para_table_candidate" style="word-break:break-all; word-wrap:break-all;">
+	                       	<thead>
+								<tr>
+									<th style="text-align: center; width: 50px;" name="INDEX" >序号</th>
+									<th style="text-align: center; width: 320px;display: none;" name="id" >编号</th>
+									<th style="text-align: center;" name="loginName">登录名</th>
+									<th style="text-align: center;" name="name">姓名</th>
+									<th style="text-align: center;" name="department">部门</th>
+									<th style="text-align: center;" name="op">操作</th>
+									</tr>
+							</thead>
+							<tbody id="para_tbody_candidate">
+			                </tbody>
+					 	</table>  
+					</div>		
+				</div>
+			</div>
+		</div>
+		
+		<div class="row" id="role_info" style="display: none;">
+ 			<div class="col-lg-12">
+ 				<div class="panel panel-default">
+ 					<div class="panel-heading">人员组信息</div>
+					<div class="panel-body pre-scrollable" style="height: 150px;">
+						 <table class="table table-striped " id="para_table_role" style="word-break:break-all; word-wrap:break-all;">
+	                       	<thead>
+								<tr>
+									<th style="text-align: center;width: 50px;" name="INDEX" >序号</th>
+									<th style="text-align: center;width: 320px;display: none;" name="id" >编号</th>
+									<th style="text-align: center;" name="type" >类型</th>
+									<th style="text-align: center;" name="name">名称</th>
+									<th style="text-align: center;" name="code">编码</th>
+									<!-- <th style="text-align: center;width: 100px;" name="logic">逻辑</th> -->
+									<th style="text-align: center;" name="op">操作</th>
+									</tr>
+							</thead>
+							<tbody id="para_tbody_role">
+			                </tbody>
+					 	</table>  
+					</div>		
+				</div>
+			</div>
+		</div>
+		
+		<div class="modal-footer" style="background-color: white;">
+		 	<button type="button" class="btn btn-primary" onclick="save()">保存</button>
+			<button type="button" class="btn btn-default" onclick="parent.d.close();">取消</button>
+		</div>
+	</div>	
+	
+</body>
+</html>

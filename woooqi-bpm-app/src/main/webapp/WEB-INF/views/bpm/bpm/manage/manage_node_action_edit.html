@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title></title>
+<style type="text/css">
+	.form-control{margin-bottom: 10px;}
+	.new_input{width:200px;height: 26px;text-align: center;}
+	.fa-edit{color:#777777;}
+	.alert-info {
+    color: #31708f;background-color: #f8f8f8;border-color: #f8f8f8;}
+</style>
+<script language="javascript" type="text/javascript">
+	  var ids = '';
+	  $(document).ready(function() {
+		 $.ajax({
+			type: "POST",
+			url: "${ctx}/processNodeEvent/getProcessNodeEventByActId",
+			dataType: 'json',
+			data:{activitiId:"${activitiId}"},
+			success: function(datas){
+				//alert(JSON.stringify(datas.rows));
+				var data = datas.rows;
+				if(data!=null && data.size!=0){
+					for(var i = 0;i<data.length;i++){
+						var table = $("#para_table");
+						var type;
+						if(data[i].type==1){
+							type="创建";
+						}else if(data[i].type==2){
+							type="分配";
+						}else if(data[i].type==3){
+							type="完成";
+						}else if(data[i].type==4){
+							type="删除";
+						}
+						var tr = "<tr>"
+								+ "<td style='text-align: center; width: 50px;' name='INDEX' >"+(i+1)+"</td>"
+								+ "<td style='text-align: center;display: none;' name='id'>"+data[i].id+"</td>"
+								+ "<td style='text-align: center;' name='action_listener'>"+data[i].class_name+"</td>"
+								+ "<td style='text-align: center;' name='action_type'>"+type+"</td>"
+								+"<td style=\"text-align: center;\" name=\"op\"><a  href='javascript: void(0)' onclick=\"del(this,\'"+data[i].id+"\')\">删除</a></td>";
+								+"</tr>";
+						table.append(tr);
+					  }
+				}
+			 }
+		}); 
+		
+	}); 
+	 
+	  function indexFormatter(value, row, index) {  
+          return index+1;  
+	  }
+	  
+	  function opFormatter(value, row, index){
+		  return "<a href='javascript: void(0)' onclick=\"del('"+row.id+"')\">删除</a>";
+	  }
+
+	  function confirm(){
+		 	var class_name = $("#action_listener").val().trim();
+			if(class_name == null || class_name == ''){
+				alert("请输入对应监听器");
+				return;
+			}
+			
+			var action_type = $("#action_type").val();
+			var type;
+			if(action_type==1){
+				type="创建";
+			}else if(action_type==2){
+				type="分配";
+			}else if(action_type==3){
+				type="完成";
+			}else if(action_type==4){
+				type="删除";
+			}
+			var table = $("#para_table");	
+			var tr = "<tr>"
+				+ "<td style='text-align: center; width: 50px;' name='INDEX' >"+($("#para_table").find("tr").length)+"</td>"
+				+ "<td style='text-align: center;display: none;' name='id'>0</td>"
+				+ "<td style='text-align: center;' name='action_listener'>"+class_name+"</td>"
+				+ "<td style='text-align: center;' name='action_type'>"+type+"</td>"
+				+"<td style=\"text-align: center;\" name=\"op\"><a  href='javascript: void(0)' onclick=\"del(this,0)\">删除</a></td>";
+				+"</tr>";
+				table.append(tr);		
+		}
+		
+	  function del(obj,id){
+		  if(id == 0 || id == null){
+			//$(obj).parent().parent().remove();
+		  }else{
+			  $.ajax({
+					type: "POST",
+					url: "${ctx}/processNodeEvent/delProcessNodeEventById",
+					dataType: 'json',
+					data:{id:id},
+					success: function(datas){
+					 }
+					
+				}); 
+			  
+			  
+			  
+			  
+		  }
+		  $(obj).parent().parent().remove();
+		  
+		  
+		}
+	  
+	  function save(){
+		    var class_names = '';
+		    var types = '';
+	 		$("#para_tbody tr").each(function(index,element){
+				$(this).children().each(function(i,e){
+					if($(e).attr("name")=='action_listener'){
+						class_names += ","+$(e).text();
+					}
+					if($(e).attr("name")=='action_type'){
+						var type;
+						if($(e).text()=='创建'){
+							type="1";
+						}else if($(e).text()=='分配'){
+							type="2";
+						}else if($(e).text()=='完成'){
+							type="3";
+						}else if($(e).text()=='删除'){
+							type="4";
+						}
+						types += ","+type;
+					}
+					if($(e).attr("name")=='id'){
+						ids += ","+$(e).text();
+					}
+				})
+			});
+	 		class_names = class_names.substring(1);
+	 		types = types.substring(1);
+			ids = ids.substring(1);
+	 		$.ajax({
+				type: "POST",
+				url: "${ctx}/processNodeEvent/saveProcessNodeEvent",
+				dataType: 'json',
+				data:{activitiId:"${activitiId}",definitionId:"${definitionId}",types:types,class_names:class_names,ids:ids},
+				success: function(datas){
+					if(datas.code>0){
+						alert("事件配置成功");
+						parent.d.close();
+					}else{
+						alert(data.msg);
+					}
+					
+				 }
+			}); 
+	 		
+		}
+</script>
+</head>
+<body>
+	<div id="wrapper">
+	<div class="row">
+				<div class="col-lg-12">
+				<div class="panel panel-default">
+					<div class="panel-body">
+						<table style="width: 100%">						
+							<tr>
+                      			<td class="col-xs-1 text-right"><label class="text-right">事件类型:</label></td>
+                      			<td class="col-xs-4 form-group">
+                      				<select id="action_type" name="action_type" class="form-control">
+                      					<option value="1">创建</option>
+                      					<option value="2">分配</option>
+                      					<option value="3">完成</option>
+                      					<option value="4">删除</option>
+									</select>
+								</td>
+								<td class="col-xs-1 text-right"><label class="text-right">监听器:</label></td>
+                      			<td class="col-xs-4 "><input id="action_listener" class="form-control"  /></td>
+								<td class="col-xs-2"><button style="margin-bottom: 10px;"  type="button" class="btn btn-success" onclick="confirm()">确认</button> </td>
+                      		</tr>
+                      	</table>
+                    </div>
+                    </div>
+				
+				</div>
+			</div>
+		<div class="row">
+ 			<div class="col-lg-12">
+				<div class="panel panel-default pre-scrollable" style="height:240px;">
+					<div class="panel-heading">事件信息</div>
+						<div class="panel-body">
+							<table class="table table-striped " id="para_table" style="word-break:break-all; word-wrap:break-all;">
+								<thead>
+									<tr>
+										<th style="text-align: center;" name="INDEX"  data-width="50px">序号</th>
+										<th style="text-align: center;display: none;" name="id"  data-width="50px">编号</th>
+										<th style="text-align: center;" name="action_listener">监听器</th>
+										<th style="text-align: center;" name="action_type">事件类型</th>
+										<th style="text-align: center;" name="op">操作</th>
+									</tr>
+								</thead>
+								<tbody id="para_tbody">
+				                </tbody>
+							</table>
+						</div>
+				</div>
+			</div>
+		</div>
+		<div class="modal-footer" style="background-color: white;">
+		 	<button type="button" class="btn btn-primary" onclick="save()">保存</button>
+			<button type="button" class="btn btn-default" onclick="parent.d.close();">取消</button>
+		</div>
+		
+	</div>	
+	
+</body>
+</html>

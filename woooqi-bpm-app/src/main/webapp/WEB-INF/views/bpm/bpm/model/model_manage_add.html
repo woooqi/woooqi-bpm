@@ -1,0 +1,50 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>ModelEdit</title>
+		
+	    <style type="text/css"></style>
+        <script type="text/javascript">
+        	function save(){
+        		var name = $("#name").val();
+        		var key = $("#key").val();
+        		var description = $("#description").val();
+        		parent.location.href = "${ctx}/model/createModel?name="+name+"&key="+key+"&description="+description;
+        		parent.d.close();
+        	}
+        </script>
+		
+	</head>
+	
+	<body>
+		<div id="wrapper">
+			<div class="modal-body">
+				<div class="row">
+					<div class="col-lg-12">
+						<div class="panel-body">
+							<table>
+								<tr>
+									<td><label><span style="color:red;">*</span>模型名称:</label></td>
+									<td><input class="form-control " type="text" id="name" name="name" style="width: 100%;" /></td>
+								</tr>
+								<tr>
+									<td><label><span style="color:red;">*</span>模型主键:</label></td>
+									<td><input class="form-control" type="text" id="key" name="key" style="width: 100%;" /></td>
+								</tr>
+								<tr>
+									<td><label>描述说明:</label></td>
+									<td><textarea class="form-control" type="text" id="description" name="description"style="width: 100%;"/></textarea>
+								</tr>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary" onclick="save()">保存</button>
+				<button type="button" class="btn btn-default" onclick="parent.d.close();">取消</button>
+			</div>
+		</div>
+	</body>
+
+</html>

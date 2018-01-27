@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.3.xsd">
+
+ 	<bean id="shiroEhcacheManager" class="org.apache.shiro.cache.ehcache.EhCacheManager">
+		<property name="cacheManagerConfigFile" value="classpath:ehcache-shiro.xml" />
+	</bean>
+
+    <bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">    
+        <property name="realm" ref="shiroDbRealm"/>
+        <property name="cacheManager" ref="shiroEhcacheManager"/>
+    </bean>  
+ 	
+ 	<bean id="shiroCredentialsMatcher" class="com.titan.manage.shiro.ShiroCredentialsMatcher">
+ 		<constructor-arg ref="shiroEhcacheManager"></constructor-arg>
+ 	</bean>
+        
+    <bean id="shiroDbRealm" class="com.titan.manage.shiro.ShiroDbRealm">
+    	<property name="cachingEnabled" value="true" />  
+        <property name="authenticationCachingEnabled" value="true" />  
+        <property name="authenticationCacheName" value="shiroEhcacheManager" />  
+        <property name="authorizationCachingEnabled" value="true" />  
+        <property name="authorizationCacheName" value="shiroEhcacheManager" />
+    </bean>
+    
+    <bean id="kaptchaFormAuthenticationFilter" class="com.titan.manage.shiro.KaptchaFormAuthenticationFilter"></bean>
+    
+    <bean id="anyRolesAuthorizationFilter" class="com.titan.manage.shiro.AnyRolesAuthorizationFilter"></bean> 
+    
+    <bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">   
+        <property name="securityManager" ref="securityManager"/>  
+        <property name="loginUrl" value="/login"/> 
+        <property name="successUrl" value="/main_index?path=index"></property>
+        <property name="unauthorizedUrl" value="/unauthorize"/>
+        <property name="filters">
+            <util:map>
+                <entry key="kaptcha" value-ref="kaptchaFormAuthenticationFilter"/>
+                <entry key="anyRoles" value-ref="anyRolesAuthorizationFilter" />
+            </util:map>
+        </property> 
+        <property name="filterChainDefinitions">    
+            <value> 
+            	/static/** = anon
+            	/flowable/** = anon
+            	/favicon.ico = anon
+            	/view=anyRoles[USER]
+                /login = kaptcha
+                /** = user
+            </value>    
+        </property>    
+    </bean>  
+    
+    <bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor" />  
+    
+    <bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator" depends-on="lifecycleBeanPostProcessor">
+		<property name="proxyTargetClass" value="true" />
+	</bean>
+
+	<bean class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor">
+		<property name="securityManager" ref="securityManager" />
+	</bean>
+	
+	<bean id="kaptchaProducer" class="com.google.code.kaptcha.impl.DefaultKaptcha">
+		<property name="config">
+			<bean class="com.google.code.kaptcha.util.Config">
+				<constructor-arg>
+					<props>
+						<!--边框样式-->
+						<prop key="kaptcha.border">no</prop>
+						<prop key="kaptcha.border.color">51,122,183</prop>
+						<prop key="kaptcha.border.thickness">1</prop>
+						<!--图片样式-->
+						<prop key="kaptcha.image.width">240</prop>
+						<prop key="kaptcha.image.height">160</prop>
+						<!--背景样式-->
+						<prop key="kaptcha.background.clear.from">white</prop> 
+						<prop key="kaptcha.background.clear.to">white</prop>
+						<!--字体样式-->
+						<prop key="kaptcha.textproducer.font.size">100</prop>
+						<prop key="kaptcha.textproducer.font.names">宋体,楷体,微软雅黑</prop>
+						<prop key="kaptcha.textproducer.font.color">51,122,183</prop>
+						<prop key="kaptcha.textproducer.char.string">0123456789</prop>
+						<prop key="kaptcha.textproducer.impl">com.google.code.kaptcha.text.impl.DefaultTextCreator</prop>
+						<prop key="kaptcha.textproducer.char.length">4</prop>
+						<prop key="kaptcha.textproducer.char.space">2</prop>
+						<!--字型样式-->
+						<!--水纹com.google.code.kaptcha.impl.WaterRipple,鱼眼com.google.code.kaptcha.impl.FishEyeGimpy,阴影com.google.code.kaptcha.impl.ShadowGimpy -->
+						<prop key="kaptcha.obscurificator.impl">com.google.code.kaptcha.impl.ShadowGimpy</prop>
+						<!--噪声样式-->
+						<prop key="kaptcha.noise.impl">com.titan.manage.shiro.KapthaNoise</prop>
+					</props>
+				</constructor-arg>
+			</bean>
+		</property>
+	</bean> 
+
+</beans>

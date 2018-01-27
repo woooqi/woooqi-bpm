@@ -1,0 +1,132 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>edit Cloumn</title>
+		
+	    <style type="text/css">
+	    </style>
+        <script type="text/javascript">
+    	var win_width = $(window).width();
+	    var win_height = $(window).height();
+        
+	        $(document).ready(function() {
+	    		
+	    	});
+	        
+	       	function save(){
+	       		var field = $("#field").val().trim();
+	       		var comments = $("#comments").val().trim();
+	       		var type = $("#type").val().trim();
+	       		var lengths = $("#lengths").val().trim();
+	       		var tableName = $("#tableName").val().trim();
+	       		var dataSourceId = $("#dataSourceId").val().trim();
+	       		var sort = $("#sort").val().trim();
+	       		if(field==''){
+	       			alert("请填写字段");
+	       			return;
+	       		}
+	       		if(comments==''){
+	       			alert("请填写说明");
+	       			return;
+	       		}
+	       		if(type==''){
+	       			alert("请选择类型");
+	       			return;
+	       		}
+	       	    var reg =/^[0-9]*$/;
+	       		if(lengths=='' || !reg.test(lengths)){
+	       			alert("字段长度必须是数字!");
+	       			return;
+	       		}
+	       		if(tableName==''){
+	       			alert("请填写表名");
+	       			return;
+	       		}
+	       		if(dataSourceId==''){
+	       			alert("请填写数据源");
+	       			return;
+	       		}
+	       		if(sort=='' || !reg.test(sort)){
+	       			alert(" 排序必须是数字!");
+	       			return;
+	       		}
+	       		var info =comments+":"+type+":"+lengths+":"+tableName+":"+ dataSourceId+":"+sort;
+	       		
+	       		parent.setName(field);
+	       		parent.setInfo(info);
+	       		f_close();
+	       	}
+	        function f_close(){
+				parent.d.close();
+				parent.d = null;
+			}
+	        
+	       
+        </script>
+	</head>
+	<body>
+			<div class="row">
+				<div class="col-md-12">
+						<div class="panel-body">
+								<div class="col-md-12">
+									<table>
+										<tr>
+											<td class="col-md-1 text-right" ><label>字段名:</label></td>
+											<td class="col-md-3">
+												<input class="form-control" id="field" name="field" >
+											</td>
+											
+											<td class="col-md-1 text-right" ><label>说明:</label></td>
+											<td class="col-md-3">
+												<input class="form-control" id="comments" name="comments" >
+											</td>
+										</tr>
+										
+										<tr>
+				                     		<td class="col-md-1 text-right"><label>类型:</label></td>
+				                     		<td class="col-md-3 ">
+				                     		<select id="type" name="type" class="form-control">
+		                     					<option value="text">text</option>
+		                     					<option value="number">number</option>
+		                     					<option value="textarea">textarea</option>
+		                     					<option value="date">date</option>
+		                     				</select>
+		                     				</td>
+		                     				<td class="col-md-1 text-right"><label>长度:</label></td>
+				                     		<td class="col-md-3 ">
+				                     			<input id="lengths" class="form-control" placeholder="请输入数字" >
+				                     		</td>
+			                     		</tr>
+										<tr>
+				                     		<td class="col-md-1 text-right"><label>表名:</label></td>
+				                     		<td class="col-md-3 ">
+				                     			<input id="tableName" class="form-control" >
+		                     				</td>
+		                     				<td class="col-md-1 text-right"><label>数据源:</label></td>
+				                     		<td class="col-md-3 ">
+				                     			<input id="dataSourceId" class="form-control" >
+				                     		</td>
+			                     		</tr>
+			                     		
+			                     		<tr>
+				                     		<td class="col-md-2 text-right"><label>排序:</label></td>
+				                     		<td class="col-md-4 ">
+				                     			<input id="sort" class="form-control" placeholder="请输入数字">
+		                     				</td>
+		                     				<td class="col-md-2"></td>
+				                     		<td class="col-md-4 "></td>
+			                     		</tr>
+			                     		
+										
+									</table>
+								</div>
+						</div>
+				</div>
+			</div>
+			<div class="modal-footer" style="background-color: white;">
+				<button type="button" class="btn btn-primary" onclick="save()">保存</button>
+				<button type="button" class="btn btn-default" onclick="f_close();">取消</button>
+			</div>
+	</body>
+
+</html>

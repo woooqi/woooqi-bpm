@@ -1,0 +1,168 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>Deploy Manage</title>
+	<style type="text/css">
+	</style>
+	<script type="text/javascript">
+	
+	var d = null;
+	var win_width = $(window).width();
+	var win_height = $(window).height();
+	//var taskId;
+		$(document).ready(function() {
+			_initHtml(function(){
+				$("#work_work").addClass("active");
+				$("#work_started").addClass("active");
+				$('#side-menu').metisMenu();
+			})
+			
+		});
+		
+		function queryParams(params) {   //设置查询参数  
+			var param = {    
+				pageNumber : params.pageNumber-1,    
+				pageSize : params.pageSize,  
+				name : $("#name").val()
+			};
+			return param;                   
+		}
+		
+		
+		
+		function lcFormatter(value, row, index){
+			if(value){
+     			 return value.split(':')[0]; 
+     		}else{
+     			return "";
+     		}
+		}
+		
+		 function op(taskId,actId,instanceId,flag){
+    		if(flag==0){
+	        	d = dialog({
+	    			title: '处理任务',
+	    			url : "${ctx}/edit?path=work/work/common_work_execute&actId="+actId+"&instanceId="+instanceId+"&taskId="+taskId,
+	    			width : win_width*0.3,
+	    			height : 160,
+	    			close:false
+	    		});
+	    		d.show();
+    		}else if(flag==1){
+    			d = dialog({
+	    			title: '处理任务',
+	    			url : "${ctx}/edit?path=work/work/custom_work_execute&actId="+actId+"&instanceId="+instanceId+"&taskId="+taskId,
+	    			width : win_width*0.8,
+	    			height : win_height*0.6,
+	    			close:false
+	    		});
+    			d.show();
+    		}
+    		else if(flag==2){
+    			d = dialog({
+	    			title: '处理任务',
+	    			url : "${ctx}/edit?path=work/work/signTask_work_execute&actId="+actId+"&instanceId="+instanceId+"&taskId="+taskId,
+	    			width : win_width*0.3,
+	    			height : 160,
+	    			close:false
+	    		});
+    			d.show();
+    		}
+        }
+		 
+	  function view(proc_inst_id_){
+    		d = dialog({
+    			title: '查看详情',
+    			url : '${ctx}/edit?path=bpm/bpm/instance/instance_history_view&id='+proc_inst_id_,
+    			width : win_width*0.7,
+    			height : win_height*0.6,
+    			close:false
+    		});
+    		d.show();
+    		
+        }
+	   
+		
+		function indexFormatter(value, row, index) {  
+	        return index+1;  
+		}
+		
+		
+		function nameFormatter(value, row, index) {  
+	        return "<a href=\"javascript: void(0)\"  onclick=\"view('"+row.proc_inst_id_+"')\">"+row.proc_def_name_+"</a>";  
+		}
+		function opFormatter(value, row, index){
+			var actId = row.task_def_key_;
+			var instanceId = row.proc_inst_id_;
+			var taskId = row.id_;
+			//alert(taskId);
+			var result = "";
+			if(row.task_op=='0'){
+				result="<a href=\"javascript: void(0)\"  onclick=\"op('"+taskId+"','"+actId+"','"+instanceId+"',0)\">处理</a>";
+			}else if(row.task_op=='1'){
+				result="<a href=\"javascript: void(0)\"  onclick=\"op('"+taskId+"','"+actId+"','"+instanceId+"',1)\">处理</a>";
+			}else if(row.task_op=='2'){
+				result="<a href=\"javascript: void(0)\"  onclick=\"op('"+taskId+"','"+actId+"','"+instanceId+"',2)\">处理</a>";
+			}
+			return result;
+
+		}
+		
+		function search(){
+			$('#data-table').bootstrapTable('refresh', {});  
+		}
+	</script>
+</head>
+	 	<body>
+	 		<div id="wrapper">
+				<div class="row">
+					<div class="col-lg-12">
+						<div class="panel panel-default">
+							<div class="panel-body">
+								<div class="col-lg-12">
+									<table>
+										<tr>
+											<td class="col-lg-1"><label>名称:</label></td>
+											<td class="col-lg-3">
+												<input class="form-control" id="name" name="name" placeholder="请输入待办任务名称"></select>
+											</td>
+											<td class="col-lg-4 text-left">
+												<button type="button" class="btn btn-default" onclick="search()">搜索</button>
+											</td>
+										</tr>		
+									</table>		
+								</div>	
+							</div>
+						</div>
+					</div>
+				</div>
+	 			<div class="row">
+	 				<div class="col-lg-12">
+	 					<div class="panel panel-default">
+	 						<div class="panel-heading">待办任务列表</div>
+	 						<div class="panel-body">
+	 							<table width="100%"  class="table table-striped table-bordered table-hover"  id="data-table" 
+	 										data-toggle="table"  data-click-to-Select=true 
+	 										data-url="${ctx}/work/getWorkStartedTasks"  data-method="post" data-content-type="application/x-www-form-urlencoded"
+	 										data-query-params="queryParams" data-query-params-type="undefined" 
+	 										data-pagination=true data-side-pagination="server" data-page-size=20 >
+	 								<thead>
+	 									<tr>
+	 										<th data-radio="true" data-width="30px"></th>
+	 										<th data-field="index" class="text-center" data-formatter="indexFormatter" data-width="60px">序号</th>
+	 										<th data-field="proc_inst_id_" data-width="300px"  class="text-center" >流程实例编号</th>
+	 										<th data-field="proc_def_id_" data-formatter="lcFormatter" class="text-center" >流程主键</th>
+	 										<th data-field="proc_def_name_" data-formatter="nameFormatter" class="text-center" >流程名称</th>
+	 										<th data-field="name_" class="text-center">任务名称</th>
+	 										<th data-field="op"  data-formatter="opFormatter" class="text-center" >操作</th>
+	 									</tr>
+	 								</thead>
+	 							</table>
+	 						</div>
+	 					</div>
+	 				</div>
+	 			</div>
+	 		</div>
+	 	</body>
+
+	 </html>

@@ -1,0 +1,94 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>Deploy Manage</title>
+		
+	    <style type="text/css">
+	    </style>
+        <script type="text/javascript">
+	        $(document).ready(function() {
+	    		var id = '${id}';
+	    		if(id !=='' && id !==null){
+		    		$.ajax({
+		 			   type: "POST",
+		 			   url: "${ctx}/category/getCategoryById",
+		 			   dataType: 'json',
+		 			   data:{id : id},
+		 			   async: false,
+		 			   success: function(data){
+		 				  	$("#status").val(data.status);
+	 						$("#name").val(data.name);  		
+		 			   }
+		    		});
+	    		}
+	    	});
+	        
+	       	function save(){
+	       		var name = $("#name").val();
+	       		var status = $("#status").val();
+	       		var id = '${id}';
+	       		if($("#name").val().trim()==""){
+					alert("种类名称不能为空");
+					return;
+				}
+	       		if($("#status").val().trim()==""){
+					alert("请选择状态");
+					return;
+				}
+	       		
+	       		$.ajax({
+		 			   type: "POST",
+		 			   url: "${ctx}/category/updateCategory",
+		 			   dataType: 'json',
+		 			   data : {name : name,id : id,status : status},
+		 			   async: false,
+		 			   success: function(data){
+		 				 	if(data.code>0){
+		 				 		alert(data.msg);
+		 				 		parent.d.close();
+		 				 	}else if(data.code<0){
+		 				 		alert(data.msg);
+		 				 	}
+		 				 	parent.search();
+		 			   }
+		    		});   
+	       	}
+        	
+	        function search(){
+    	    	$('#data-table').bootstrapTable('refresh', {}); 
+    	    }
+        </script>
+	</head>
+	<body>
+			<div class="row">
+				<div class="col-md-12">
+						<div class="panel-body">
+								<div class="col-md-12">
+									<table>
+										<tr>
+											<td class="col-md-1 " ><label>类名：</label></td>
+											<td class="col-md-3">
+												<input class="form-control " id="name" name="name" >
+											</td>
+										</tr>
+										<tr>
+											<td class="col-md-1 " ><label>状态:</label></td>
+											<td class="col-md-3 form-group">
+												<select id="status" name="status" class="form-control">
+                      								<option value="1" selected="selected">启用</option>
+                      								<option value="0">停用</option>
+												</select>
+											</td>
+										</tr>
+									</table>
+								</div>
+						</div>
+				</div>
+			</div>
+			<div class="modal-footer" style="background-color: white;">
+				<button type="button" class="btn btn-primary" onclick="save()">保存</button>
+				<button type="button" class="btn btn-default" onclick="parent.d.close();">取消</button>
+			</div>
+	</body>
+
+</html>

@@ -1,0 +1,122 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>edit Dept</title>
+		
+	    <style type="text/css">
+	    </style>
+        <script type="text/javascript">
+	        $(document).ready(function() {
+	    		var id = '${id}';
+	    		if(id !='' && id !=null){
+		    		$.ajax({
+		 			   type: "POST",
+		 			   url: "${ctx}/dept/getDeptById",
+		 			   dataType: 'json',
+		 			   data:{id : id},
+		 			   async: false,
+		 			   success: function(data){
+	 						$("#name").val(data.name);  
+	 						$("#sort").val(data.sort);
+	 						$("#deptCode").val(data.deptCode);
+	 						$("#status").val(data.status); 
+		 			   }
+		    		});
+	    		}
+	    	});
+	        
+	       	function save(){
+	       		var name = $("#name").val();
+	       		var id = '${id}';
+	       		var deptCode = $("#deptCode").val();
+	       		var status = $("#status").val();
+	       		var sort = $("#sort").val();
+	       		if(name.trim()==""){
+					alert("部门名称不能为空");
+					return;
+				}   
+	       		if(status.trim()==""){
+					alert("请选择状态");
+					return;
+				}
+	       		if(sort.trim()==""||!/^[0-9]*$/.test(sort)){
+					alert("输入排序必须是数字");
+					return;
+				}
+	       		
+	       		$.ajax({
+		 			   type: "POST",
+		 			   url: "${ctx}/dept/saveDept",
+		 			   dataType: 'json',
+		 			   data : {id:id ,name:name,deptCode:deptCode,status:status,sort:sort,parentId:"${parentId}"},
+		 			   async: false,
+		 			   success: function(data){
+		 				 	if(data.code>0){
+		 				 		alert(data.msg);
+		 				 		parent.d.close();
+		 				 	}else if(data.code=-1){
+		 				 		alert(data.msg);
+		 				 	}
+		 					else{
+		 				 		alert("创建失败");
+		 				 		return;
+		 				 	}
+		 				 	parent.getTreeDept();
+		 				 	parent.f_search();
+		 			   }
+		    		});   
+	       	
+	       	}
+        	
+	        function search(){
+    	    	$('#data-table').bootstrapTable('refresh', {}); 
+    	    }
+        </script>
+	</head>
+	<body>
+			<div class="row">
+				<div class="col-md-12">
+						<div class="panel-body">
+								<div class="col-md-12">
+									<table>
+										<tr>
+											<td class="col-md-1 " ><label>部门名称:</label></td>
+											<td class="col-md-3">
+												<input class="form-control" id="name" name="name" >
+											</td>
+										</tr>
+										<tr>
+											<td class="col-md-1 " ><label>部门编码:</label></td>
+											<td class="col-md-3">
+												<input class="form-control" id="deptCode" name="deptCode" >
+											</td>
+										</tr>
+										<tr>
+											<td class="col-md-1 " ><label>状态:</label></td>
+											<td class="col-md-3 form-group">
+												<select id="status" name="status" class="form-control">
+                      								<option value="1">启用</option>
+                      								<option value="0">停用</option>
+												</select>
+											</td>
+										</tr>
+										<tr>
+											<td class="col-md-1 " ><label>排序:</label></td>
+											<td class="col-md-3">
+												<input class="form-control" id="sort" name="sort" placeholder="请输入数字">
+											</td>
+										</tr>
+										
+										
+									</table>
+								</div>
+						</div>
+				</div>
+			</div>
+			<div class="modal-footer" style="background-color: white;">
+				<button type="button" class="btn btn-primary" onclick="save()">保存</button>
+				<button type="button" class="btn btn-default" onclick="parent.d.close();">取消</button>
+			</div>
+	</body>
+
+</html>

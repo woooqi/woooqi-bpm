@@ -1,0 +1,183 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>Deploy Manage</title>
+		
+	    <style type="text/css">
+	    </style>
+        <script type="text/javascript">
+	        $(document).ready(function() {
+	        	_initHtml(function(){
+	        		$("#organization_manage").addClass("active");
+	    			$("#role_manage").addClass("active");
+	    			$('#side-menu').metisMenu();
+	        	});
+	    	});
+	       
+	        function indexFormatter(value, row, index){
+	        	return index+1;
+	        	
+	        }
+	        
+	        function  ztFormatter(value,row,index){
+	     		if(value =="1"){
+	     			return "启用";
+	     		}else{
+	     			return "停用";
+	     		}
+	    	}
+	        
+	        var win_width = $(window).width();
+	    	var win_height = $(window).height();
+	        function add_role(){
+	        	d = dialog({
+	    			title: '新增角色',
+	    			url : '${ctx}/edit?path=organization/role_manage_add',
+	    			width : win_width*0.4,
+	    			height : 250,
+	    			close:false
+	    		});
+	    		d.show();
+	        	
+	        }
+	        
+	        function edit_role(){
+	        	var selections = $('#data-table').bootstrapTable('getSelections');
+	    		if (selections.length != 1) {
+	    			alert("请选择一行数据");
+	    			return;
+	    		}
+	    		var id = selections[0].id
+	        	d = dialog({
+	    			title: '修改角色信息',
+	    			url : '${ctx}/edit?path=organization/role_manage_add&id='+id,
+	    			width : win_width*0.4,
+	    			height : 250,
+	    			close:false
+	    		});
+	    		d.show();
+	        	
+	        }
+	        
+	        function del_role(){
+	        	var selections = $('#data-table').bootstrapTable('getSelections');
+	    		if (selections.length != 1) {
+	    			alert("请选择一行数据");
+	    			return;
+	    		}
+	    		var id = selections[0].id;
+	    		if(confirm("删除确认")){
+		    		$.ajax({
+		 			   type: "POST",
+		 			   url: "${ctx}/role/delRoleById",
+		 			   dataType: 'json',
+		 			   async: false,
+		 			   data:{id : id},
+		 			   success: function(data){
+		 				   if(data.code>=0){
+		 					   alert('删除成功');
+		 				   }else{
+		 					   alert(data.msg);
+		 				   }
+		 				search();   
+		 			   }
+		 			}); 
+	    		}
+	        }
+	        
+	        function queryParams(params) {   //设置查询参数  
+	        	var param = {    
+	                pageNumber : params.pageNumber-1,    
+	                pageSize : params.pageSize,  
+	                name : $("#name").val(),
+	            };
+	        	//alert(JSON.stringify(param)); 
+	            return param;                   
+	        }
+	        
+	        function sjFormatter(value,row,index){
+	     		if(value){
+	     			return new Date(value).Format("yyyy-MM-dd");
+	     		}else{
+	     			return "";
+	     		}
+	    	}
+	        
+	        function search(){
+    	    	$('#data-table').bootstrapTable('refresh', {});  
+    	    }
+	        
+	        function do_menu(){
+	         	var selections = $('#data-table').bootstrapTable('getSelections');
+	    		if(selections!=null && selections.length==1){
+	    			var id = selections[0].id;
+	    			window.location.href = "${ctx}/main_business?path=organization/role_menu_manage&_id=${_id}&roleId="+id
+	    		}else{
+	        	window.location.href = "${ctx}/main_business?path=organization/role_menu_manage&_id=${_id}"
+	    		}
+	        }
+        </script>
+	</head>
+	<body>
+		<div id="wrapper">
+			<div class="row">
+				<div class="col-lg-12">
+					<div class="panel panel-default">
+						<div class="panel-body">
+							<button type="button" class="btn btn-success" onclick="add_role()">新增</button>
+							<button type="button" class="btn btn-warning" onclick="edit_role()">编辑</button>
+							<button type="button" class="btn btn-danger" onclick="del_role()">删除</button>
+							<button type="button" class="btn btn-warning" onclick="do_menu()">配置菜单</button>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-lg-12">
+					<div class="panel panel-default">
+						<div class="panel-body">
+								<div class="col-lg-12">
+									<table>
+										<tr>
+											<td class="col-lg-1"><label>角色名:</label></td>
+											<td class="col-lg-3">
+												<input class="form-control" id="name" name="name" placeholder="请输入角色名" >
+											</td>
+											<td class="col-lg-4 text-left">
+												<button type="button" class="btn btn-default" onclick="search()">搜索</button>
+											</td>
+										</tr>
+									</table>
+								</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-lg-12">
+					<div class="panel panel-default">
+						<div class="panel-body">
+							<table width="100%" class="table table-striped table-bordered table-hover"  id="data-table" 
+										data-toggle="table"  data-click-to-Select=true 
+										data-url="${ctx}/role/getAllRole" data-method="post" data-content-type="application/x-www-form-urlencoded"
+										data-query-params="queryParams" data-query-params-type="undefined" 
+										data-pagination=true data-side-pagination="server" data-page-size=20 >
+								<thead>
+									<tr>
+										<th data-radio="true" data-width="30px"></th>
+										<th data-field="index" class="text-center" data-formatter="indexFormatter" data-width="60px">序号</th>
+										<th data-field="name" class="text-center" >角色</th>
+										<th data-field="roleCode" class="text-center" >角色编码</th>
+										<th data-field="status" data-formatter="ztFormatter" class="text-center" >状态</th>
+										<th data-field="createTime" data-formatter="sjFormatter" class="text-center" >创建时间</th>
+									</tr>
+								</thead>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+
+</html>

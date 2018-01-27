@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<datasources>
+	<datasource name="default">
+		<classname>oracle.jdbc.driver.OracleDriver</classname>
+		<url>jdbc:oracle:thin:@172.16.9.100:1521:oracle</url>
+		<username>titanbpm</username>
+		<password>123</password>
+		<jndi></jndi>
+	</datasource>
+	<datasource name="cs">
+		<classname>oracle.jdbc.driver.OracleDriver</classname>
+		<url>jdbc:oracle:thin:@172.16.9.100:1521:oracle</url>
+		<username>cs</username>
+		<password>cs</password>
+		<jndi></jndi>
+	</datasource>
+	
+	
+</datasources>

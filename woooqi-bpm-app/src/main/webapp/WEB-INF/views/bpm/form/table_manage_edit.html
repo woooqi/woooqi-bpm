@@ -1,0 +1,244 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>edit Dept</title>
+		
+	    <style type="text/css">
+	    </style>
+        <script type="text/javascript">
+    	var win_width = $(window).width();
+	    var win_height = $(window).height();
+		var d = null;
+        
+	        $(document).ready(function() {
+	    		var tableId = '${tableId}';
+	    		if(tableId !='' && tableId !=null){
+		    		$.ajax({
+		 			   type: "POST",
+		 			   url: "${ctx}/customTable/getTableByTableId",
+		 			   dataType: 'json',
+		 			   data:{tableId : tableId},
+		 			   async: false,
+		 			   success: function(data){
+		 				  // alert(JSON.stringify(data));
+		 				   if(data.table!=null){
+		 					   $("#name").val(data.table.name);
+		 					   $("#description").val(data.table.description);
+		 				   }
+		 				   if(data.column!=null&&data.column.length!=0){
+		 					   for(var i=0;i<data.column.length;i++){
+		 					   
+		 				   		var tr = "<tr>"
+		 							+ "<td style='text-align: center; width: 50px;' name='INDEX' >"+($("#para_tbody").find("tr").length+1)+"</td>"
+		 							+ "<td style='text-align: center;' name='field'>"+data.column[i].field+"</td>"
+		 							+ "<td style='text-align: center;' name='comments'>"+data.column[i].comments+"</td>"
+		 							+ "<td style='text-align: center;' name='type'>"+data.column[i].type+"</td>"
+		 							+ "<td style='text-align: center;' name='lengths'>"+data.column[i].lengths+"</td>"
+		 							+ "<td style='text-align: center;' name='tableName'>"+data.column[i].tableName+"</td>"
+		 							+ "<td style='text-align: center;' name='dataSourceId'>"+data.column[i].dataSourceId+"</td>"
+		 							+"<td style=\"text-align: center;\" name=\"op\"><a  href='javascript: void(0)' onclick=\"del(this)\">删除</a></td>";
+		 							+"</tr>";
+		 					     $("#para_tbody").append(tr);
+
+		 				   }
+		 				   }
+		 			   }
+		    		});
+	    		}
+	    		
+	    		
+	    		  $("#cloumn").click(function(){
+	  				if(d != null && JSON.stringify(d)!='{}'){
+	  					return;
+	  				}
+	  				d = dialog({
+	  					title: ' 字段填写',
+	  					url : '${ctx}/edit?path=bpm/form/cloumn_manage_add',
+	  					width : win_width*0.7,
+	  					height : 245,
+	  					close:false
+	  		   		});
+	  		   		d.show(document.getElementById('cloumn'));	
+	  				
+	  			 });
+	    	});
+	       
+	      
+	        
+
+	       	function setName(name){
+	    		$("#cloumn").val(name);
+	    	}
+	    	function setInfo(info){
+	    		$("#cloumn").attr("text",info);
+	    		
+	    	}
+	    	function confirm(){
+	   		var flag = 0;
+	   			$("#para_tbody tr").each(function(index,element){
+	   				$(this).children().each(function(i,e){
+	   					if($(e).attr("name")=='field'){
+	   						if($("#field").attr("text")==$(e).text()){
+	   							alert("已有该字段，请删除后在重新添加!");
+	   							flag = 1;
+	   							return;
+	   						}
+	   					}
+	   					
+	   				})
+	   			});
+	   			if(flag==1){
+	   				return;
+	   			}
+	   			var field = $("#cloumn").val().trim();
+	   			var info = $("#cloumn").attr("text");
+	   			if(field==''||info==''){
+	   				alert("请填写字段");
+	   				return;
+	   			}
+	   			var array;
+	   			if(info!=''){
+	    			array=info.split(":");
+	    		}
+				
+				var tr = "<tr>"
+						+ "<td style='text-align: center; width: 50px;' name='INDEX' >"+($("#para_tbody").find("tr").length+1)+"</td>"
+						+ "<td style='text-align: center;' name='field'>"+field+"</td>"
+						+ "<td style='text-align: center;' name='comments'>"+array[0]+"</td>"
+						+ "<td style='text-align: center;' name='type'>"+array[1]+"</td>"
+						+ "<td style='text-align: center;' name='lengths'>"+array[2]+"</td>"
+						+ "<td style='text-align: center;' name='tableName'>"+array[3]+"</td>"
+						+ "<td style='text-align: center;' name='dataSourceId'>"+array[4]+"</td>"
+						+ "<td style='text-align: center;display:none;' name='sort'>"+array[5]+"</td>"
+						+"<td style=\"text-align: center;\" name=\"op\"><a  href='javascript: void(0)' onclick=\"del(this)\">删除</a></td>";
+						+"</tr>";
+				$("#para_tbody").append(tr);
+	   						
+	   					 
+	   				
+	   	}
+	    	
+    	 function del(obj){
+		 		$(obj).parent().parent().remove();
+		 }
+    	 
+    	 
+       	function save(){
+       		
+       		var tableId = '${tableId}';
+       		
+       		var name=$("#name").val().trim();
+       		var description =$("#description").val();
+       		if(name==''){
+       			alert("请输入表名");
+       			return;
+       		}
+       		if(description==''){
+       			alert("请输入相关描述");
+       			return;
+       		}
+       		var cloumns = [];
+			$("#para_table tbody tr").each(function(index,element){
+				var cloumn;
+				cloumn = {field:$(element).find('td[name="field"]').text(),comments:$(element).find('td[name="comments"]').text(),type:$(element).find('td[name="type"]').text(),lengths:$(element).find('td[name="lengths"]').text(),tableName:$(element).find('td[name="tableName"]').text(),dataSourceId:$(element).find('td[name="dataSourceId"]').text(),sort:$(element).find('td[name="sort"]').text()};
+				cloumns.push(cloumn);
+				
+			});
+			/* alert(JSON.stringify(cloumns));
+			return; */
+       		
+       		$.ajax({
+	 			   type: "POST",
+	 			   url: "${ctx}/customTable/saveCustomTable",
+	 			   dataType: 'json',
+	 			   data : {id:'${tableId}' ,name:name,description:description,cloumns:JSON.stringify(cloumns)},
+	 			   async: false,
+	 			   success: function(data){
+	 				 	if(data.code>0){
+	 				 		alert(data.msg);
+	 				 		parent.d.close();
+	 				 		parent.f_search();
+	 				 	}else {
+	 				 		alert(data.msg);
+	 				 	}
+	 					
+	 			   }
+	    		});   
+       	
+       	}
+	       	
+        	
+	        
+	        
+	       
+        </script>
+	</head>
+	<body>
+		<div id="wrapper">
+	
+			<div class="row">
+				<div class="col-xs-12">
+					<div class="panel panel-default">
+						<div class="panel-body">
+									<table style="width: 100%" >
+										<tr>
+											<td class="col-xs-2 text-right" ><label>表名:</label></td>
+											<td class="col-xs-4">
+												<input class="form-control" id="name" name="name" >
+											</td>
+											
+											<td class="col-xs-2 text-right" ><label>描述:</label></td>
+											<td class="col-xs-4">
+												<input class="form-control" id="description" name="description" >
+											</td>
+										</tr>
+										
+										<tr>
+				                     		<td class="col-xs-2 text-right"><label>字段:</label></td>
+				                     		<td class="col-xs-4 "><input id="cloumn" text="" class="form-control"  placeholder="请填写详细字段" readonly="readonly"/></td>
+				                     		<td class="col-xs-2 text-right"><button style="margin-bottom: 10px;" type="button" class="btn btn-success" onclick="confirm()">确认</button> </td>
+			                     		    <td class="col-xs-4">
+											</td>
+			                     		</tr>
+										
+										
+									</table>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+	 			<div class="col-xs-12">
+	 				<div class="panel panel-default">
+	 					<div class="panel-heading">字段信息</div>
+						<div class="panel-body pre-scrollable" style="height: 180px;">
+							 <table class="table table-striped " id="para_table" style="word-break:break-all; word-wrap:break-all;">
+		                       	<thead>
+									<tr>
+										<th style="text-align: center; width: 50px;" name="INDEX" >序号</th>
+										<th style="text-align: center;" name="field">字段</th>
+										<th style="text-align: center;" name="comments">说明</th>
+										<th style="text-align: center;" name="type">类型</th>
+										<th style="text-align: center;" name="lengths">长度</th>
+										<th style="text-align: center;" name="tableName">表名</th>
+										<th style="text-align: center;" name="dataSourceId">数据源</th>
+										<th style="text-align: center;" name="op">操作</th>
+										</tr>
+								</thead>
+								<tbody id="para_tbody">
+				                </tbody>
+						 	</table>  
+						</div>		
+					</div>
+				</div>
+			</div>
+				
+			<div class="modal-footer" style="background-color: white;">
+				<button type="button" class="btn btn-primary" onclick="save()">保存</button>
+				<button type="button" class="btn btn-default" onclick="parent.d.close();">取消</button>
+			</div>
+			</div>
+	</body>
+	
+
+</html>

@@ -1,0 +1,170 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>edit Dept</title>
+		
+	    <style type="text/css">
+	    </style>
+        <script type="text/javascript">
+    	var win_width = $(window).width();
+	    var win_height = $(window).height();
+		var d = null;
+        
+	        $(document).ready(function() {
+	    		var formId = '${formId}'  ;
+	    		if(formId !='' && formId !=null){
+		    		$.ajax({
+		 			   type: "POST",
+		 			   url: "${ctx}/customForm/getCustomFormById",
+		 			   dataType: 'json',
+		 			   data:{formId : formId},
+		 			   async: false,
+		 			   success: function(data){
+		 				//  alert(JSON.stringify(data));
+		 				   if(data!=null){
+		 					   $("#name").val(data.name);
+		 					   $("#description").val(data.description);
+		 					   $("#columns").val(data.description);
+		 					   $("#tableId").val(data.table.id);
+		 				   }
+		 				 
+		 			   }
+		    		});
+	    		}
+	    		
+	    		$.ajax({
+		 			   type: "POST",
+		 			   url: "${ctx}/customTable/getAllSelectCustomTable",
+		 			   dataType: 'json',
+		 			   data:null,
+		 			   async: false,
+		 			   success: function(data){
+		 				   if(data!=null && data.length!=0){
+			 				   for(var i=0;i<data.length;i++){
+			 					   var option = "<option value="+data[i].id+">"+data[i].name+"</option>";
+			 					   $("#tableId").append(option);
+			 					   
+			 				   }
+		 				   }
+		 				 
+		 			   }
+		    		});
+	    		
+	    		
+	    	});
+	  
+    	 
+       	function save(callback){
+       		
+       		var formId = '${formId}';
+       		var name=$("#name").val().trim();
+       		var description =$("#description").val();
+       		var columns = $("#columns").val();
+       		var tableId = $("#tableId").val();
+       		if(name==''){
+       			alert("请输入表单名");
+       			return;
+       		}
+       		if(description==''){
+       			alert("请输入相关描述");
+       			return;
+       		}
+       		if(columns==''){
+       			alert("请选择列数");
+       			return;
+       		}
+       		if(tableId==''){
+       			alert("请输入表名");
+       			return;
+       		}
+       		
+       		$.ajax({
+	 			   type: "POST",
+	 			   url: "${ctx}/customForm/saveForm",
+	 			   dataType: 'json',
+	 			   data : {formId:formId ,name:name,description:description,columns:columns,tableId:tableId},
+	 			   async: false,
+	 			   success: function(datas){
+	 				 	if(datas.code>0){
+	 				 		parent.d.close();
+	 				 		parent.f_search();
+	 				 		if(callback){
+	 				 			callback(datas.data.id);
+	 				 		}else{
+	 				 			alert(datas.msg);
+	 				 		}
+	 				 	}else {
+	 				 		alert(datas.msg);
+	 				 	}
+	 			   }
+	    		});   
+       	
+       	} 
+       	
+       	function save_edit(){
+       		save(function(formId){
+    	   		parent.window.location.href = "${ctx}/main_business?path=bpm/form/form_manage_html&_id="+parent._id+"&formId="+formId;
+       		});
+       	}
+	       
+        </script>
+	</head>
+	<body>
+		<div id="wrapper">
+	
+			<div class="row">
+				<div class="col-md-12">
+						<div class="panel-body">
+							<div class="col-md-12">
+								<table style="width: 100%" >
+									<tr>
+										<td class="col-md-1 " ><label>表单名:</label></td>
+										<td class="col-md-3">
+											<input class="form-control" id="name" name="name" >
+										</td>
+									</tr>
+									<tr>
+										
+										<td class="col-md-1" ><label>描述:</label></td>
+										<td class="col-md-3">
+											<input class="form-control" id="description" name="description" >
+										</td>
+									</tr>
+									
+									<tr>
+										<td class="col-md-1" ><label>列数:</label></td>
+										<td class="col-md-3 form-group">
+											<select id="columns" name="columns" class="form-control">
+                   								<option value="1">1</option>
+                   								<option value="2">2</option>
+                   								<option value="3">3</option>
+                   								<option value="4">4</option>
+											</select>
+										</td>
+									</tr>
+									
+									<tr>
+										<td class="col-md-1" ><label>表名:</label></td>
+										<td class="col-md-3 form-group">
+											<select id="tableId" name="tableId" class="form-control">
+                   								
+											</select>
+										</td>
+									</tr>
+									
+									
+								</table>
+							</div>
+						</div>
+					</div>
+			</div>
+				
+			<div class="modal-footer" style="background-color: white;">
+				<button type="button" class="btn btn-primary" onclick="save()">保存</button>
+				<button type="button" class="btn btn-success" onclick="save_edit()">保存并编辑样式</button>
+				<button type="button" class="btn btn-default" onclick="parent.d.close();">取消</button>
+			</div>
+	</body>
+	
+
+</html>

@@ -1,0 +1,225 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>Deploy Manage</title>
+		
+	    <style type="text/css">
+	    </style>
+        <script type="text/javascript">
+	        $(document).ready(function() {
+	        	_initHtml(function(){
+		        	$("#bpm").addClass("active");
+		        	$("#bpm_instance").addClass("active");
+		        	$("#instance_manage").addClass("active");
+		    		$('#side-menu').metisMenu();
+	        	});
+	    		
+	    		$.ajax({
+					   type: "POST",
+					   url: "${ctx}/instance/getAllInstance",
+					   dataType: 'json',
+					   async: true,
+					   success: function(data){
+						//alert(JSON.stringify(data));
+						   search();
+					   }
+					}); 
+	    		
+	    	});
+	        
+	        function searchImg(){
+	        	var selections = $('#data-table').bootstrapTable('getSelections');
+	    		if (selections.length != 1) {
+	    			alert("请选择一行数据");
+	    			return;
+	    		}
+	    		var id = selections[0].id_;
+	    		d = dialog({
+	    			title: '查看图片',
+	    			url : '${ctx}/edit?path=bpm/bpm/instance/instance_manage_view&id='+id,
+	    			width : 800,
+	    			height : 400,
+	    			close:false
+	    		});
+	    		d.show();
+	    		
+	        }
+	        function indexFormatter(value, row, index) {  
+	            return index+1;  
+		    }
+	        function queryParams(params) {
+		    	var param = {    
+	    			pageNumber : params.pageNumber,    
+	                pageSize : params.pageSize,
+	                name_:$("#name_").val(),
+	            };    
+	            return param;                   
+	        }
+	        function sjFormatter(value,row,index){
+	     		if(value){
+	     			return new Date(value).Format("yyyy-MM-dd");
+	     		}else{
+	     			return "";
+	     		}
+	    	}
+	        
+	        function nameFormatter(value,row,index){
+	     		if(value){
+	     			return value.split(":")[0];
+	     		}else{
+	     			return "";
+	     		}
+	    	}
+	        
+	        function verFormatter(value,row,index){
+	     		if(value){
+	     			return value.split(":")[1];
+	     		}else{
+	     			return "";
+	     		}
+	    	}
+	        
+	        function statusFormatter(value,row,index){
+	        	if(value=="1"){
+	        		return "激活";
+	        	}else{
+					return "挂起";	        		
+	        	}
+	        }
+	        
+	        function pend(){
+	        	var selections = $('#data-table').bootstrapTable('getSelections');
+	        	//alert(JSON.stringify(selections)); 
+	    		if (selections.length != 1) {
+	    			alert("请选择一行修改数据");
+	    			return;
+	    		}
+	        	var instanceId = selections[0].id_;
+	        	var status = selections[0].suspension_state_;
+	    		if(status != "1"){
+	    			alert("此流程已挂起");
+	    			return;
+	    		}
+	        	$.ajax({
+					   type: "POST",
+					   url: "${ctx}/instance/spendInstance",
+					   dataType: 'json',
+					   async: true,
+					   data:{instanceId : instanceId},
+					   success: function(data){
+						   if(data.code>0){
+							   alert("挂机成功");
+						   }else{
+							   alert(data.msg);
+						   }
+						   search();
+					   }
+					}); 
+	        }
+	        
+	        function active(){
+	        	var selections = $('#data-table').bootstrapTable('getSelections');
+	    		if (selections.length != 1) {
+	    			alert("请选择一行修改数据");
+	    			return;
+	    		}
+	    		var instanceId = selections[0].id_;
+	    		var status = selections[0].suspension_state_;
+	    		if(status == 1){
+	    			alert("此流程已激活");
+	    			return;
+	    		}
+	        	$.ajax({
+					   type: "POST",
+					   url: "${ctx}/instance/activeInstance",
+					   dataType: 'json',
+					   async: true,
+					   data:{instanceId : instanceId},
+					   success: function(data){
+						   if(data.code>0){
+							   alert("激活成功");
+						   }else{
+							   alert(data.msg);
+						   }
+						   search();
+					   }
+					}); 
+	        }
+	        	
+	        function queryParams(params) {   //设置查询参数  
+	        	var param = {    
+	                pageNumber : params.pageNumber,    
+	                pageSize : params.pageSize,  
+	                name : $("#name").val(),
+	            };
+	        	//alert(JSON.stringify(param)); 
+	            return param;                   
+	        }
+	        function search(){
+    	    	$('#data-table').bootstrapTable('refresh', {});  
+    	    }
+        </script>
+	</head>
+	<body>
+		<div id="wrapper">
+			<div class="row">
+				<div class="col-lg-12">
+					<div class="panel panel-default">
+						<div class="panel-body">
+							<button type="button" class="btn btn-primary" onclick="searchImg()">流程图</button>
+							<button type="button" class="btn btn-danger" onclick="pend()">挂起流程</button>
+							<button type="button" class="btn btn-success" onclick="active()">激活流程</button>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-lg-12">
+					<div class="panel panel-default">
+						<div class="panel-body">
+								<div class="col-lg-12">
+									<table>
+										<tr>
+											<td class="col-lg-1"><label>流程名称：</label></td>
+											<td class="col-lg-3">
+												<input class="form-control" id="name" name="name" placeholder="请输入流程名称" >
+											</td>
+											<td class="col-lg-4 text-left">
+												<button type="button" class="btn btn-default" onclick="search()">搜索</button>
+											</td>
+										</tr>
+									</table>
+								</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-lg-12">
+					<div class="panel panel-default">
+						<div class="panel-body">
+							<table width="100%" class="table table-striped table-bordered table-hover"  id="data-table" 
+										data-toggle="table"  data-click-to-Select=true 
+										data-url="${ctx}/instance/getAllInstance"
+										data-query-params="queryParams" data-query-params-type="undefined" 
+										data-pagination=true data-side-pagination="server" data-page-size=20 >
+								<thead>
+									<tr>
+										<th data-radio="true" data-width="30px"></th>
+										<th data-field="index" class="text-center" data-formatter="indexFormatter" data-width="60px">序号</th>
+										<th data-field="id_" class="text-center hidden" >流程实例编号</th>
+										<th data-field="proc_def_id_" class="text-center" data-formatter="nameFormatter">流程名称</th>
+										<th data-field="business_key_" class="text-center hidden" >业务主键</th>
+										<th data-field="proc_def_id_" class="text-center " data-formatter="verFormatter">流程版本</th>
+										<th data-field="proc_def_id_" class="text-center hidden" >流程定义编号</th>
+										<th data-field="suspension_state_" class="text-center" data-formatter="statusFormatter">状态</th>
+									</tr>
+								</thead>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

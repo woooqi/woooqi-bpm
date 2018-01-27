@@ -1,0 +1,72 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>Deploy Manage</title>
+		
+	    <style type="text/css">
+	    	.panel{border: solid 1px #dddddd;}
+	    	.panel-footer{background: #f8f8f8;}
+	    	.pull-left{color: #777777;}
+	    	.pull-left:hover{color: #333333;}
+	    	.input{ border:0; }
+	    	.fa-file-text{color:#777777;}
+	    	.fa-arrow-circle-right{color:#777777; }
+	    	.fa-arrow-circle-right:hover{color:#333333; }
+	    </style>
+        <script type="text/javascript">
+	        $(document).ready(function() {
+	        	_initHtml(function(){
+	    			$("#work_bpm").addClass("active");
+	    			$("#bpm_start").addClass("active");
+	    			$('#side-menu').metisMenu();
+	        	});
+	    		
+	    		$.ajax({
+					type : "POST",
+					url : "${ctx}/bpm/getAuthorizeProcessDefinition",
+					dataType : 'json',
+					async : true,
+					success : function(data) {
+						var str = "";
+						for(var i in data){
+							str+= "<div class='col-lg-3 col-md-6'><div class='panel'><div class='panel-heading'><div class='row'><div class='col-xs-3'><i class='fa fa-file-text fa-5x'></i></div>";
+							str+= "<div class='col-xs-9 text-right'><div class='text-right'>版本号:"+data[i].version_+"</div><div class='text-right'>流程名:"+data[i].name_+"</div></div></div></div>";
+                        	str+= "<a href=\'javascript: void(0)\' onclick=\"start('"+data[i].key_+"')\"><div class='panel-footer'><span class='pull-left'>发起流程</span><span class='pull-right'><i class='fa fa-arrow-circle-right'></i></span><div class='clearfix'></div></div></a></div></div>";
+						}
+						$("#bpmstart_data").html(str);
+					}
+				});
+	    	});
+	        
+	        function start(processKey){
+	        	 $.ajax({
+	    	   		 type: "POST",
+	    	   		 url: "${ctx}/bpm/startDefinition",
+	    	   		 dataType: 'json',
+	    	   		 async: true, 
+	    	   		 data: {processKey : processKey},
+	    	   		 success: function(data){
+	    	   			 if(data.code >= 0){
+	    	   				 alert("发起成功");
+	    	   				 parent.search();
+	    	   			 }
+	    	   			 else{
+	    	   				 alert(data.msg);
+	    	   			 }
+	    	   		 }
+	    	   	 });
+	        }
+	        
+	        function search(){
+				$('#data-table').bootstrapTable('refresh', {});  
+			}	
+	        
+        </script>
+	</head>
+	<body>
+		<div id="wrapper">
+			<div class="row" id="bpmstart_data" >
+		</div>
+	</body>
+
+</html>

@@ -1,0 +1,238 @@
+   <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>ModelEdit</title>
+		
+	    <style type="text/css">
+	    </style>
+	    <link rel="stylesheet" href="${ctx}/static/bootstrap/vendors/zTree_v3/css/metroStyle/metroStyle.css" type="text/css">
+ 		<script type="text/javascript" src="${ctx}/static/bootstrap/vendors/zTree_v3/js/jquery.ztree.core.js"></script>
+        <script type="text/javascript">
+	        
+	        $(document).ready(function() {
+	        	_initHtml(function(){
+	    			$("#organization_manage").addClass("active");
+	    			$("#menu_manage").addClass("active");
+	    			$('#side-menu').metisMenu();
+	        	});
+	    		getTreeMenu();
+	    	});
+	        
+	        var parentId=0;
+	        
+	    	var setting = {	
+	    		data: {
+	    			simpleData: {enable: true}},
+	        	callback: {
+	        		onClick: function(event, treeId, treeNode){
+	        			//alert(JSON.stringify(treeNode));
+	        			parentId = treeNode.id;
+	        			f_search();
+	        		}
+	        	}	
+	    	};  
+    	  	var win_width = $(window).width();
+	    	var win_height = $(window).height();
+	        
+	        function indexFormatter(value, row, index) {  
+	            return index+1;  
+		    }
+	        
+	        function statusFormatter(value,row,index){
+	     		if(value=='1'){
+	     			return  "启用";
+	     		}else{
+	     			return "停用";
+	     		}
+	    	}
+	        
+	        function sjFormatter(value,row,index){
+	     		if(value){
+	     			return new Date(value).Format("yyyy-MM-dd hh:mm");
+	     		}else{
+	     			return "";
+	     		}
+	    	}
+	        
+	        function parentFormatter(value,row,index){
+	        	if(value){
+	        		var res="";
+	        		$.ajax({
+	    				type: "POST",
+	    				url: "${ctx}/menu/getMenuById",
+	    				dataType: 'json',
+	    				async:false, 
+	    				data:{"id":value},
+	    				success: function(rs){
+	    					res = rs.name;
+	    				 }
+	    			}); 
+	        		return res;
+	        		
+	        	}else{
+	        		return "";
+	        	}
+	        	
+	        }
+	        
+	        
+	        function queryParams(params) {
+		    	var param = {    
+	    			pageNumber : params.pageNumber-1,    
+	                pageSize : params.pageSize,
+	                parentId :parentId,
+	                
+	            };    
+	            return param;                   
+	        }
+	        
+	        function f_search(){
+		    	$('#data-table').bootstrapTable('refresh', {});  
+		    }
+	        
+	        function addMenu_manage(){
+		       	 d = dialog({
+	   				title: '修改菜单',
+	   				url : '${ctx}/edit?path=organization/menu_manage_edit&parentId='+parentId,
+	   				width :  win_width*0.4,
+	   				height : 330,
+	   				close:false
+		   		});
+		   		d.showModal();
+		     };
+	       
+			function editMenu_manage(){
+				var selections = $('#data-table').bootstrapTable('getSelections');
+	    		if (selections.length != 1) {
+	    			alert("请选择一行数据");
+	    			return;
+	    		}
+	        	var menuId = selections[0].id;
+	        	//alert(menuId);
+		       	 d = dialog({
+	   				title: '修改菜单',
+	   				url : '${ctx}/edit?path=organization/menu_manage_edit&parentId='+parentId+"&id="+menuId,
+	   				width : win_width*0.4,
+	   				height : 330,
+	   				close:false
+		   		});
+		   		d.showModal();
+		     };
+			 
+		 	 function delMenu_manage(){
+				var selections = $('#data-table').bootstrapTable('getSelections');
+	    		if (selections.length != 1) {
+	    			alert("请选择一行数据");
+	    			return;
+	    		}
+	    		var id = selections[0].id;
+	    		if(confirm("确定删除此菜单？")){
+	    			$.ajax({
+	    				type: "POST",
+	    				url: "${ctx}/menu/deleteMenu",
+	    				dataType: 'json',
+	    				data:{"id":id},
+	    				success: function(rs){
+	    					if(rs.code>0){
+	    						alert(rs.msg);
+	    						f_search();
+	    						getTreeMenu();   
+	    					}else{
+	    						alert(rs.msg);
+	    					}
+	    					
+	    				 }
+	    			}); 
+	    			
+	    			
+	    		}
+		     };
+			     
+		     function getTreeMenu(){
+				   $.ajax({
+	    				type: "POST",
+	    				url: "${ctx}/menu/getTreeMenu",
+	    				dataType: 'json',
+	    				data:null,
+	    				success: function(rs){
+	    					var nodes = rs;
+	    					$.fn.zTree.init($("#menu"), setting, nodes);
+	    					var tree = $.fn.zTree.getZTreeObj("menu");
+	    					tree.expandAll(true);
+	    					
+	    				 }
+	    			}); 
+			   }
+        </script>
+		
+	</head>
+	<body>
+			<div id="wrapper">
+			<div class="row">
+			
+				<div class="col-xs-4" >
+					<div class="panel panel-default">
+						<div class="panel-body pre-scrollable" style="max-height:600px;min-height: 400px;">
+							<ul id="menu" class="ztree"></ul>
+	            		</div>
+					</div>
+					
+				</div>
+				 <div class="col-xs-8" style="margin-left: -10px;">
+					 <div class="row">
+						<div class="col-lg-12">
+							<div class="panel panel-default">
+								<div class="panel-body">
+									<button type="button" class="btn btn-success" onclick="addMenu_manage()">新增</button>
+									<button type="button" class="btn btn-warning" onclick="editMenu_manage()">编辑</button>
+									<button type="button" class="btn btn-danger" onclick="delMenu_manage()">删除</button>
+								</div>
+							</div>
+		
+						</div>
+					</div>
+					
+					<div class="row">
+						<div class="col-lg-12">
+							<div class="panel panel-default">
+								<div class="panel-body">
+									<table width="100%" class="table table-striped table-bordered table-hover"  id="data-table" 
+										data-toggle="table"  data-click-to-Select=true 
+										data-url="${ctx}/menu/getAllMenu" data-method="post" data-content-type="application/x-www-form-urlencoded"
+										data-query-params="queryParams" data-query-params-type="undefined" 
+										data-pagination=true data-side-pagination="server" data-page-size=20 >
+										<thead>
+											<tr>
+												<th data-radio="true" data-width="30px"></th>
+												<th data-field="index" class="text-center" data-formatter="indexFormatter" data-width="50px">序号</th>
+												<th data-field="name"  class="text-center">名称</th>
+												<th data-field="parentId" data-formatter="parentFormatter" class="text-center" >父菜单</th>
+												<th data-field="url" class="text-center" data-width="260px">路径地址</th>
+												<!-- <th data-field="createTime" class="text-center" data-formatter="sjFormatter">创建时间</th> -->
+												<th data-field="image" class="text-center" >图标</th>
+												<th data-field="status" data-formatter="statusFormatter" class="text-center" >状态</th>
+											</tr>
+										</thead>
+									</table>
+								</div>
+							</div>
+						</div>
+				</div>	
+					
+					
+				 </div>
+				 
+				 
+				
+				
+				
+					
+			
+			</div>
+			
+			
+			
+		</div>
+	</body>
+
+</html>

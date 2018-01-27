@@ -1,0 +1,70 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>ModelEdit</title>
+		
+	<style type="text/css"></style>
+	<script src="${ctx}/static/js/ajaxfileupload.js"></script>
+    <script language="javscript" type="text/javascript" >
+		$(document).ready(function() {
+			$('#file').hide();
+		});
+		
+		function ajaxFileUpload() {
+			$.ajaxFileUpload({
+				url : '${ctx}/definition/deploymentOnLine',
+				fileElementId : 'file',
+				dataType : 'json',
+				success : function(data, status) { 
+					if(data.code>0){
+						alert("上传成功");
+						parent.d.close();
+					}else{
+						alert("请上传后缀名为.zip的压缩文件");
+						return;
+					}
+				},
+				error : function(data, status, e) {
+					alert(e);
+					alert('文件上传失败，请重试');
+					}
+				})
+		}
+	       
+		function fileClick(){
+			$('#file').click();
+		}
+	
+      </script>
+       
+		
+	</head>
+	
+	<body>
+		<div id="wrapper">
+			<div class="row">
+				<div class="col-lg-12">
+					<div class="panel panel-default">
+						<div class="panel-body">
+								<div class="col-lg-12">
+									<table>
+										<tr>
+											<td class="col-xs-2"><label>上传部署文件：</label></td>
+											<td	class="col-xs-4">
+												<input type="file" id="file" name="file" onchange="ajaxFileUpload()" />
+												<input id="filename" name="filename" class="form-control" onclick="fileClick()"></input>
+											</td>
+										</tr>
+									</table>
+								</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" onclick="parent.d.close();">取消</button>
+			</div>
+		</div>
+	</body>
+
+</html>

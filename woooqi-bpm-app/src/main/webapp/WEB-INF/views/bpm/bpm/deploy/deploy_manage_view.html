@@ -1,0 +1,41 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>ModelEdit</title>
+		
+	    <style type="text/css"></style>
+        <script type="text/javascript">
+        function down(){
+			$("#img_id").val();
+			$("#img_name").val();
+			$('#viewIMG').submit();
+    	}
+        </script>
+		
+	</head>
+	
+	<body>
+		<div id="wrapper">
+		<div class="modal-body" >
+				<div class="row" >
+					<div class="col-lg-12">
+						<div class="panel-body pre-scrollable" style="min-height: 350px;">
+						<img src="${ctx}/deploy/getImageByte?id=${deployId}"/>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="modal-footer">
+				<button type="button" class="btn btn-primary" onclick="down()">下载</button>
+				<button type="button" class="btn btn-default" onclick="parent.d.close();">取消</button>
+		</div>
+		<div class="row" style="height: 0px;display: none;" >
+				<form id="viewIMG" name="viewIMG" action="${ctx}/deploy/getImageByte" method="post">
+					<input id="img_id" type="text" name="id" value="${deployId}"/>
+					<input id="img_name" type="text" name="name" value="${name}"/>
+				</form>
+		</div>
+	</body>
+
+</html>

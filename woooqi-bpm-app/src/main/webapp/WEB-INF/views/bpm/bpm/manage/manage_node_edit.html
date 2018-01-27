@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title></title>
+<style type="text/css">
+	.form-control{margin-bottom: 10px;}
+	.new_input{width:200px;height: 26px;text-align: center;}
+	.fa-edit{color:#777777;}
+	.alert-info {color: #31708f;background-color: #f8f8f8;border-color: #f8f8f8;}
+</style>
+<script language="javascript" type="text/javascript">
+	$(document).ready(function() {
+		_initHtml(function(){
+			$("#bpm").addClass("active");
+	    	$("#bpm_process").addClass("active");
+	    	$("#process_manage").addClass("active");
+			$('#side-menu').metisMenu();
+		});
+		
+		$.ajax({
+			type: "POST",
+			url: "${ctx}/node/nodeManage",
+			dataType: 'json',
+			data:{"definitionId":"${definitionId}"},
+			success: function(datas){
+				var data = datas.rows;
+				//alert(JSON.stringify(data));
+				
+				for(var i = 0;i<data.length;i++){
+					var name="";
+					var type="";
+					if( data[i].name!=null){
+					 	if(data[i].name.indexOf(":")!=-1){
+					 		if(data[i].name.split(":")[0]!=null&&data[i].name.split(":")[0]!="null"){
+					 			name=data[i].name.split(":")[0];
+					 			
+					 		}
+					 		if(data[i].name.split(":")[1]!=null){
+					 			type=data[i].name.split(":")[1]
+					 		}
+						}
+					}
+					
+					var table = $("#para_table");
+					var tr = "<tr>"
+							+ "<td style='text-align: center; width: 50px;' name='INDEX' >"+($("#para_tbody").find("tr").length+1)+"</td>"
+							+ "<td style='text-align: center; width: 260px;display: none;' name='id'>"+data[i].id+"</td>"
+							+ "<td style='text-align: center; ' name='act_type'>"+type+"</td>"
+							+ "<td style='text-align: center;' name='act_name'>"+name+"</td>";
+							if(type=='process'||type.indexOf('开始事件')!=-1||type.indexOf('结束事件')!=-1){
+								tr += "<td name='act_node'></td>";
+							}else{
+								tr += "<td style='text-align: center;' name='act_node'><a href='javascript: void(0)' onclick=\"act_node_edit('"+data[i].id+"')\"><i class='fa fa-edit fa-1x'></i></a></td>";
+							}
+							if(type=='process'||type.indexOf('开始事件')!=-1||type.indexOf('结束事件')!=-1||type.indexOf("网关")!=-1){
+							 	tr += "<td name='assignee'></td>";
+							}else{
+								tr += "<td style='text-align: center;' name='assignee'><a href='javascript: void(0)' onclick=\"assignee_edit('"+data[i].id+"')\"><i class='fa fa-edit fa-1x'></i></a></td>"
+							}
+							tr +="<td style='text-align: center;' name='action'><a href='javascript: void(0)' onclick=\"action_edit('"+data[i].id+"')\"><i class='fa fa-edit fa-1x'></i></a></td>"
+							if(type.indexOf('开始事件')!=-1||type.indexOf('结束事件')!=-1||type.indexOf("网关")!=-1){
+								 tr += "<td  name='form' ></td>";
+							}else{
+								tr += "<td style='text-align: center;' name='form'  ><a href='javascript: void(0)' onclick=\"form_edit('"+data[i].id+"')\"><i class='fa fa-edit fa-1x'></i></a></td>"
+							}
+							if(type.indexOf('会签任务')!=-1){
+								tr += "<td style='text-align: center;' name='countersign'  ><a href='javascript: void(0)' onclick=\"countersign_edit('"+data[i].id+"')\"><i class='fa fa-edit fa-1x'></i></a></td>"
+							}else{
+								 tr += "<td name='countersign'></td>";
+							}
+							tr += "<td style='text-align: center;' name='remind'  ><a href='javascript: void(0)' onclick=\"remind_edit('"+data[i].id+"')\"><i class='fa fa-edit fa-1x'></i></a></td>"
+							
+							tr += "</tr>";
+					table.append(tr);
+							
+				  }
+			 }
+		});
+		
+	}); 
+	var win_width = $(window).width();
+	var win_height = $(window).height();
+	var d = null;
+	//节点
+	function act_node_edit(id){
+		 d = dialog({
+				title: '节点配置',
+				url : "${ctx}/edit?path=bpm/bpm/manage/manage_node_node_edit&activitiId="+id+"&definitionId="+"${definitionId}",
+				width : win_width*0.4,
+				height : 300,
+				close:false
+		});
+		d.showModal();
+	}
+	//人员
+	function assignee_edit(id){
+       	 d = dialog({
+				title: '人员配置',
+				url : "${ctx}/edit?path=bpm/bpm/manage/manage_node_assignee_edit&activitiId="+id+"&definitionId="+"${definitionId}",
+				width : win_width*0.6,
+				height : 480,
+				close:false
+   		});
+   		d.showModal();
+     };
+     
+     function action_edit(id){
+       	 d = dialog({
+				title: '事件配置',
+				url : "${ctx}/edit?path=bpm/bpm/manage/manage_node_action_edit&activitiId="+id+"&definitionId="+"${definitionId}",
+				width : win_width*0.6,
+				height : 400,
+				close:false
+   		});
+   		d.showModal();
+     };
+     function form_edit(id){
+       	 d = dialog({
+				title: '表单配置',
+				url : "${ctx}/edit?path=bpm/bpm/manage/manage_node_form_edit&activitiId="+id+"&definitionId="+"${definitionId}",
+				width : win_width*0.7,
+				height : 480,
+				close:false
+   		});
+   		d.showModal();
+     };
+     
+     function countersign_edit(id){
+       	 d = dialog({
+				title: '会签配置',
+				url : "${ctx}/edit?path=bpm/bpm/manage/manage_node_sign_edit&activitiId="+id+"&definitionId="+"${definitionId}",
+				width : win_width*0.6,
+				height : 460,
+				close:false
+   		});
+   		d.showModal();
+     };
+
+     function remind_edit(id){
+       	 d = dialog({
+				title: '提醒配置',
+				url : "${ctx}/edit?path=bpm/bpm/manage/manage_node_notice_edit&activitiId="+id+"&definitionId="+"${definitionId}",
+				width : win_width*0.6,
+				height : 400,
+				close:false
+   		});
+   		d.showModal();
+     };
+
+		
+</script>
+</head>
+<body>
+	<div id="wrapper">
+		<div class="row">
+			<div class="col-lg-12">
+				<div class="alert alert-info">
+	                <a href="${ctx}/main_business?path=bpm/bpm/manage/process_manage&_id=${_id}">流程设计</a>&nbsp;&nbsp;/&nbsp;&nbsp;<a href="${ctx}/main_business?path=bpm/bpm/manage/process_manage&_id=${_id}">流程配置</a>&nbsp;&nbsp;/&nbsp;&nbsp;<a href="#">配置管理</a>
+	            </div>
+            </div>
+		</div>
+		<div class="row">
+ 			<div class="col-lg-12">
+ 				<div class="panel panel-default">
+ 					<div class="panel-heading">节点信息</div>
+					<div class="panel-body">
+						 <table class="table table-striped" id="para_table" style="word-break:break-all; word-wrap:break-all;">
+	                       	<thead>
+								<tr>
+									<th style="text-align: center;width:30px;" name="INDEX" >序号</th>
+									<th style="text-align: center;display: none;" name="id" >编号</th>
+									<th style="text-align: center;" name="act_type">类型</th>
+									<th style="text-align: center;" name="act_name">名称</th>
+									<th style="text-align: center;" name="act_node">节点</th>
+									<th style="text-align: center;" name="assignee">人员</th>
+									<th style="text-align: center;" name="action">事件</th>
+									<th style="text-align: center;" name="form">表单</th>
+									<th style="text-align: center;" name="countersign">会签</th>
+									<th style="text-align: center;" name="remind">提醒</th>
+									</tr>
+							</thead>
+							<tbody id="para_tbody">
+			                </tbody>
+					 	</table>  
+					</div>		
+				</div>
+			</div>
+		</div>
+	</div>	
+	
+</body>
+</html>

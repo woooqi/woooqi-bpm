@@ -1,0 +1,155 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>ModelEdit</title>
+		
+	    <style type="text/css">
+	    </style>
+	    <link rel="stylesheet" href="${ctx}/static/bootstrap/vendors/zTree_v3/css/metroStyle/metroStyle.css" type="text/css">
+ 		<script type="text/javascript" src="${ctx}/static/bootstrap/vendors/zTree_v3/js/jquery.ztree.core.js"></script>
+ 		<script type="text/javascript" src="${ctx}/static/bootstrap/vendors/zTree_v3/js/jquery.ztree.excheck.js"></script>
+ 		
+        <script type="text/javascript">
+	        $(document).ready(function() {
+	    		var id = '${id}';
+	    		if(id !=='' && id !==null){
+	    		/* 	$('#password').remove();
+	    			$('#mm').remove(); */
+		    		$.ajax({
+		 			   type: "POST",
+		 			   url: "${ctx}/user/getUserById",
+		 			   dataType: 'json',
+		 			   data:{id : id},
+		 			   async: false,
+		 			   success: function(data){
+		 				  //alert(JSON.stringify(data.name));
+		 				  	$("#id").val(data.id);  
+		 				  	$("#loginName").val(data.loginName);
+	 						$("#name").val(data.name);
+	 						$("#status").val(data.status);
+		 			   }
+		    		});
+	    		}
+	    	});
+	        
+	    	var setting = {
+	    			check: {
+	    				enable: true,
+	    				chkStyle: "radio",
+	    				radioType: "level"
+	    			},
+	    			data: {
+	    				simpleData: {
+	    					enable: true
+	    				}
+	    			}
+	    		};
+    	  	var win_width = $(window).width();
+	    	var win_height = $(window).height();
+	        $(document).ready(function() {
+	        	getTreeDept();
+	    		$.fn.bootstrapTable.defaults.onClickRow = function(item, $element){
+	    			alert(1);
+	    		}
+	    		
+	    	});
+	        
+	        function indexFormatter(value, row, index) {  
+	            return index+1;  
+		    }
+	        
+	        function queryParams(params) {
+		    	var param = {    
+	    			pageNumber : params.pageNumber-1,    
+	                pageSize : params.pageSize,
+	                
+	            };    
+	            return param;                   
+	        }
+	        
+	        function getTreeDept(){
+				   $.ajax({
+	    				type: "POST",
+	    				url: "${ctx}/dept/getEnableDept",
+	    				dataType: 'json',
+	    				data:null,
+	    				success: function(rs){
+	    					var nodes = rs;
+	    					$.fn.zTree.init($("#dept"), setting, nodes);
+	    					var tree = $.fn.zTree.getZTreeObj("dept");
+	    					tree.expandAll(true);
+	    				 }
+	    			}); 
+			   }
+	        
+	        function save_dept(){
+	        	var id = '${id}';
+	        	var zTree = $.fn.zTree.getZTreeObj("dept");
+				nodes = zTree.getCheckedNodes(true);
+				var deptId = getChildrenNodes(nodes);
+				var count = 0;
+				for(i = 0; i < deptId.length; i++) {
+	            	if(deptId[i] == ','){
+	            		count = count + 1;
+	            	}
+	            }
+				if(count>0){
+					alert("只能选择一个子部门进行操作");
+					return;
+				}
+				if(deptId == null || deptId == ""){
+					alert("请选择一个子部门进行操作");
+					return;
+				}
+	        	$.ajax({
+		 			   type: "POST",
+		 			   url: "${ctx}/user/setDept",
+		 			   dataType: 'json',
+		 			   data : {id : id,deptId : deptId},
+		 			   async: false,
+		 			   success: function(data){
+		 				 	if(data.code>0){
+		 				 		alert("操作成功");
+		 				 		parent.d.close();
+		 				 	}else if(data.code=-1){
+		 				 		alert(data.msg);
+		 				 		return;
+		 				 	}
+		 				 	parent.search();
+		 			   }
+		    		});  
+	        	
+	        }
+	        
+	        function getChildrenNodes(nodes){
+	            var result = "";
+	        	for(i = 0; i < nodes.length; i++) {
+	            	var node = nodes[i];
+	            	if(!node.isParent){
+	            		result = result + "," + node.id;
+	            	}
+	            }
+	            return result.substring(1);
+	       }
+	        
+	        function f_search(){
+		    	$('#data-table').bootstrapTable('refresh', {});  
+		    }
+        </script>
+		
+	</head>
+	<body>
+			<div class="row">
+				<div class="col-xs-12" >
+						<div class="panel-body" style="height:200px;">
+							<ul id="dept" class="ztree"></ul>
+						</div>
+				</div>
+			</div>
+			<div class="modal-footer" style="background-color: white;">
+				<button type="button" class="btn btn-primary" onclick="save_dept()">保存</button>
+				<button type="button" class="btn btn-default" onclick="parent.d.close();">取消</button>
+			</div>
+	</body>
+
+</html>

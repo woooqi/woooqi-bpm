@@ -1,0 +1,232 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>ModelEdit</title>
+		
+	    <style type="text/css">
+	    	.alert-info {color: #31708f;background-color: #f8f8f8;border-color: #f8f8f8;}
+	    </style>
+	    <link rel="stylesheet" href="${ctx}/static/bootstrap/vendors/zTree_v3/css/metroStyle/metroStyle.css" type="text/css">
+ 		<script type="text/javascript" src="${ctx}/static/bootstrap/vendors/zTree_v3/js/jquery.ztree.core.js"></script>
+ 		<script type="text/javascript" src="${ctx}/static/bootstrap/vendors/zTree_v3/js/jquery.ztree.excheck.js"></script>
+ 		
+        <script type="text/javascript">
+        	var userId="${userId}";
+        	var userStatus="";
+	    	var setting = {
+	    			check: {
+	    				enable: true
+	    			},
+	    			data: {
+	    				simpleData: {
+	    					enable: true
+	    				}
+	    			}
+	    		};
+    	  	var win_width = $(window).width();
+	    	var win_height = $(window).height();
+	        $(document).ready(function() {
+	        	_initHtml(function(){
+	    			$("#organization_manage").addClass("active");
+	    			$("#user_manage").addClass("active");
+	    			$('#side-menu').metisMenu();
+	        	});
+	    		getTreeRole();
+	    		
+	    		$("#data-table").on('click-row.bs.table', function (e, row, element){
+	    			$('.success').removeClass('success');
+	    			$(element).addClass('success');
+	    			userId=row.id;
+	    			userStatus=row.status;
+	    			$.ajax({
+	    				type: "POST",
+	    				url: "${ctx}/role/getRoleByUserId",
+	    				dataType: 'json',
+	    				data:{id:userId},
+	    				success: function(datas){
+	    					var tree = $.fn.zTree.getZTreeObj("role");
+	    					tree.checkAllNodes(false);
+	    					if(datas.length > 0 ){
+	    						for(var i = 0;i<datas.length;i++){
+	    							var data = datas[i];
+	    							tree.checkNode(tree.getNodeByParam("id", data.id, null), true, true);
+	    						}
+	    					}
+	    					
+	    				 }
+	    			}); 
+	    			
+	    		}); 
+	    		
+	    		
+	    		$("#data-table").on('load-success.bs.table', function (data){
+		        	var datas = $('#data-table').bootstrapTable('getData');
+		    		//alert(JSON.stringify(datas));
+		        	$("#data-table tbody tr").each(function(index,element){
+		        		if(datas[index].id==userId){
+		        			 $('.success').removeClass('success');
+			                 $(element).addClass('selected');
+				    		 $(element).addClass('success');
+				    		 $("input[name='btSelectItem'][data-index="+index+"]").attr("checked",true);
+				    		 $.ajax({
+				    				type: "POST",
+				    				url: "${ctx}/role/getRoleByUserId",
+				    				dataType: 'json',
+				    				data:{id:userId},
+				    				success: function(datas){
+				    					var tree = $.fn.zTree.getZTreeObj("role");
+				    					tree.checkAllNodes(false);
+				    					if(datas.length > 0 ){
+				    						for(var i = 0;i<datas.length;i++){
+				    							var data = datas[i];
+				    							tree.checkNode(tree.getNodeByParam("id", data.id, null), true, true);
+				    						}
+				    					}
+				    					
+				    				 }
+				    			}); 
+				    			
+			              }else{
+			                  $(element).removeClass('selected');
+			                  $(element).removeClass('success');
+			               }
+					});
+		    		
+		        });
+	    		
+	    		
+	    		
+	    		
+	    	});
+	        
+	        function indexFormatter(value, row, index) {  
+	            return index+1;  
+		    }
+	        
+	        function queryParams(params) {
+		    	var param = {    
+	    			pageNumber : params.pageNumber-1,    
+	                pageSize : params.pageSize,
+	                
+	            };    
+	            return param;                   
+	        }
+	        
+	        function f_search(){
+		    	$('#data-table').bootstrapTable('refresh', {});  
+		    }
+			     
+		     function getTreeRole(){
+				   $.ajax({
+	    				type: "POST",
+	    				url: "${ctx}/role/getTreeRole",
+	    				dataType: 'json',
+	    				data:null,
+	    				success: function(nodes){
+	    					$.fn.zTree.init($("#role"), setting, nodes);
+	    					var tree = $.fn.zTree.getZTreeObj("role");
+	    					tree.expandAll(true);
+	    					
+	    				 }
+	    			}); 
+			   }
+		     
+		     function  ztFormatter(value,row,index){
+		     		if(value == "1"){
+		     			return "启用";
+		     		}else{
+		     			return "停用";
+		     		}
+		    	}
+		     
+		     function save(){
+		        	var tree = $.fn.zTree.getZTreeObj("role");
+		        	var nodes = tree.getCheckedNodes(true);
+					var roleIds = getChildrenNodes(nodes);
+					if(userStatus=="0" ){
+						alert("用户状态停用中无法进行角色操作");
+						return;
+					}
+		        	$.ajax({
+			 			   type: "POST",
+			 			   url: "${ctx}/user/saveUserRole",
+			 			   dataType: 'json',
+			 			   data : {userId : userId,roleIds : roleIds},
+			 			   async: false,
+			 			   success: function(data){
+			 				 	if(data.code>0){
+			 				 		alert("操作成功");
+			 				 		parent.d.close();
+			 				 	}else if(data.code=-1){
+			 				 		alert(data.msg);
+			 				 		return;
+			 				 	}
+			 				 	parent.search();
+			 			   }
+			    		});  
+		        }
+		     
+		     function getChildrenNodes(nodes){
+		            var result = "";
+		        	for(i = 0; i < nodes.length; i++) {
+		            	var node = nodes[i];
+		            	if(!node.isParent){
+		            		result = result + "," + node.id;
+		            	}
+		            }
+		            return result.substring(1);
+		      }
+        </script>
+		
+	</head>
+	<body>
+		<div id="wrapper">
+			<div class="row">
+				<div class="col-lg-12">
+					<div class="alert alert-info">
+		                <a href="${ctx}/main_business?path=organization/user_manage&_id=${_id}">组织结构</a>&nbsp;&nbsp;/&nbsp;&nbsp;<a href="main_business?path=organization/user_manage&_id=${_id}">用户配置</a>&nbsp;&nbsp;/&nbsp;&nbsp;<a href="#">配置角色</a>
+		            </div>
+	            </div>
+			</div>
+			<div class="row">
+				 <div class="col-xs-8">
+					<div class="row">
+						<div class="col-lg-12">
+							<div class="panel panel-default">
+							<div class="panel-heading">用户信息</div>
+								<div class="panel-body">
+									<table width="100%" class="table table-striped table-bordered table-hover"  id="data-table" 
+										data-toggle="table"  data-click-to-Select=true 
+										data-url="${ctx}/user/findUserEnable" data-method="post" data-content-type="application/x-www-form-urlencoded"
+										data-query-params="queryParams" data-query-params-type="undefined" 
+										data-pagination=true data-side-pagination="server" data-page-size=20 >
+										<thead>
+											<tr>
+												<th data-radio="true" data-width="30px"></th>
+												<th data-field="index" class="text-center" data-formatter="indexFormatter" data-width="50px">序号</th>
+												<th data-field="loginName" class="text-center">登录名</th>
+												<th data-field="name"  class="text-center">用户名</th>
+												<th data-field="status" data-formatter="ztFormatter" class="text-center" >状态</th>
+											</tr>
+										</thead>
+									</table>
+								</div>
+							</div>
+						</div>
+					</div>	
+				 </div>
+				<div class="col-xs-4" style="margin-left: -10px;">
+					<div class="panel panel-default">
+						<div class="modal-header" style="background-color: white;">
+							<button type="button" class="btn btn-primary" onclick="save()">保存</button>
+						</div>
+						<div class="panel-body pre-scrollable" style="max-height:600px;min-height: 400px;">
+							<ul id="role" class="ztree"></ul>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+
+</html>

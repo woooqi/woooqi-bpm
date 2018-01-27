@@ -1,0 +1,76 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head > 
+    <meta charset="UTF-8">  
+    <title>Titan BPM - Login</title>  
+    <style type=text/css>
+		html{width: 100%;height: 100%;overflow: hidden;font-style: sans-serif;}   
+		body{width: 100%;height: 100%;font-family: 'Open Sans',sans-serif;margin: 0;background-color: #EFEFEF;}   
+		#login{position: absolute;top: 50%;left:45%;margin: -150px 0 0 -150px;width: 400px;height: 300px;}   
+		#login h1{color: #fff;text-shadow:0 0 10px;letter-spacing: 1px;text-align: center;}   
+		.login_input{position:relative;height:50px;margin-top: 8px;margin-left: 20px;}
+		.login_text{float:left;font-size: 16px;width:80px;line-height:40px;font-family:"Microsoft YaHei";}   
+		input{float:left;width: 240px;height: 16px;margin-bottom: 10px;outline: none; padding: 10px;border: 1px solid #3762bc;border-radius: 4px;}   
+		.submiting{cursor:pointer;height: 36px;float:left;width: 200px;min-height: 36px;display: block;background-color: #4a77d4;border: 1px solid #3762bc;color: #fff;padding: 9px 20px;font-size: 15px;line-height: normal;border-radius: 5px;margin-left: 0px; }  
+		a{float:left;font-size: 14px;width:80px;line-height:40px;font-family:"Microsoft YaHei";padding-left:80px;}
+		.login_error{background-image: url("${ctx}/static/image/warn.png");background-repeat: no-repeat;background-color: #FCEEE8;border:1px solid #f6c8b5;height: 32px;line-height: 32px;width: 300px;padding-left: 40px;margin-left: 30px;border-radius: 4px;margin-top: 6px;}
+		.kaptchaimg{width:64px;height:38px; margin-left:10px; vertical-align:middle;border-radius: 4px;border: 1px solid #3762bc;}
+	</style>
+	<script src="${ctx}/static/js/jquery-1.9.1.min.js"></script>
+	<script type="text/javascript" >
+		$(document).ready(function(){ 
+
+			$("#submiting").click(function () {
+	        	var timer = setTimeout(function () {login();}, 500);
+	        });
+		        
+	        $(document).keydown(function (e) {
+	            if (e.which == 13) {
+	                timer = setTimeout(function () {login();}, 500);
+	            }
+	        });
+		        
+	        var errorMessage = "${errorMessage}";
+	        if(errorMessage != ""){
+	        	$("#login_error").text(errorMessage);
+	        	$("#login_error").css("display","block");
+	        }else{
+	        	$("#login_error").css("display","none");
+	        }
+	        
+	    });
+	    function login() {
+	        if ($("#username").val() == "") {
+	        	$("#login_error").text("用户名不能为空");
+	        	$("#login_error").css("display","block");
+	            $("#username").focus();
+	            return false;
+	        }else if ($("#password").val() == "") {
+	        	$("#login_error").text("密码不能为空");
+	        	$("#login_error").css("display","block");
+	            $("#password").focus();
+	            return false;
+	        }else{
+	        	$("#login_error").css("display","none");
+	        }
+	        $('#loginform').submit();
+	    }
+	</script>
+</head>  
+<body>  
+    <div id="login">  
+        <img src="${ctx}/static/image/login.png"></img>
+        <form id="loginform" name="loginform" action="${ctx}/login" method="post">
+        	<div id="login_error" class="login_error" >对不起，您的密码输入错误。</div> 
+            <div class="login_input"><div class="login_text">用户名：</div><input type="text" name="username" id="username" value="admin"></input></div>  
+            <div class="login_input"><div class="login_text">密&nbsp&nbsp&nbsp&nbsp码：</div><input type="password" name="password" id="password" value="000000"></input></div>  
+            <#if loginCount gte 3 >
+	            <div class="login_input"><div class="login_text">验证码：</div><input type="text" name="kaptcha" id="kaptcha" style="width: 160px;"></input>
+	            	<img id="kaptchaimg" class="kaptchaimg" src="${ctx}/static/kaptcha" onclick="this.src='${ctx}/static/kaptcha?id='+Math.random();"/>
+	            </div>  
+            </#if>
+            <div class="login_input"><input id="submiting" class="submiting" type="button" value="登录"></input> <a href="#">忘记密码</a></div>
+        </form>  
+    </div>  
+</body>  
+</html>  

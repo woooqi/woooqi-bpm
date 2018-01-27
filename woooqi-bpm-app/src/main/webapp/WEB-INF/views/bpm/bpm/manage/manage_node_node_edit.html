@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title></title>
+	<style type="text/css">
+		input.form-control{width:none;}
+	</style>
+<script language="javascript" type="text/javascript">
+	var id = '';
+	$(document).ready(function() {
+		$.ajax({
+			type: "POST",
+			url: "${ctx}/processNode/getNodeByActivitiId",
+			dataType: 'json',
+			data:{activitiId:"${activitiId}"},
+			success: function(data){
+				if(data!=null){
+					id = data.id;
+					$("#day").val(data.day);
+					$("#hour").val(data.hour);
+					$("#min").val(data.minute);
+					$("input[name='limitType'][value="+data.limitType+"]").attr("checked",true);
+					$("input[name='jumpType'][value="+data.jumpType+"]").attr("checked",true);
+				}
+			 }
+		}); 
+		
+	}); 
+	
+	function indexFormatter(value, row, index) {  
+      	 return index+1;  
+	}
+	  
+	function save(){
+		 //alert($('.days:radio:checked').val());
+		 //alert(id);
+		 var definitionId = '${definitionId}';
+		 var activitiId = '${activitiId}';
+		 var limitType = $('.limitType:radio:checked').val();
+		 var jumpType = $('.jumpType:radio:checked').val();
+		 var day = $("#day").val();
+		 var hour = $("#hour").val();
+		 var min = $("#min").val();
+		 
+		 if(limitType == "" || limitType == null){
+			 alert("请选择期限方式");
+			 return;
+		 }
+		 if($("#day").val()==""||$("#day").val()==null){
+			 alert("请填写期限时间");
+			 return;
+		 }
+		 if($("#hour").val()==""||$("#hour").val()==null){
+			 alert("请填写期限时间");
+			 return;
+		  }
+		 if($("#min").val()==""||$("#min").val()==null){
+			 alert("请填写期限时间");
+			 return;
+		 }
+		 if(jumpType == "" || jumpType == null){
+			 alert("请选择跳进方式");
+			 return;
+		 }
+		 if($("#day").length!=0){
+			var reg = /[0-9]*[1-9][0-9]*$/;
+			var r = day.match(reg);
+			if(r==null){    
+				alert('天数只能为正整数');
+				return;
+	 	    }    
+	 	 }
+		 if($("#hour").length!=0){
+		 		var reg = /^[0-9]*[1-9][0-9]*$/;
+		 		var r =hour.match(reg);
+	 	        if(r==null || $("#hour").val()>=24){    
+	 	            alert('请输入小时为小于24的整数');
+	 	            return;
+	 	        }    
+	 		}
+		 if($("#min").length!=0){
+		 		var reg = /^[0-9]*[1-9][0-9]*$/;
+		 		var r = min.match(reg);
+	 	        if(r==null || $("#min").val()>=60){    
+	 	            alert('请输入分钟为小于60的整数');
+	 	            return;
+	 	        }    
+	 		} 
+		 
+			$.ajax({
+				type: "POST",
+				url: "${ctx}/processNode/updateNode",
+				dataType: 'json',
+				data:{id:id,day:day,hour:hour,min:min,jumpType:jumpType,limitType:limitType,processVariable:$("#processVariable").val(),definitionId:definitionId,activitiId:activitiId},
+				success: function(data){
+				if(data.code>0){
+					alert("操作成功");
+					parent.d.close();
+				}else{
+					alert(data.msg);
+					return;
+				}
+			 }
+		});
+			
+	  }
+	
+	  function f_search(){
+	    	$('#data-table').bootstrapTable('refresh', {});  
+	   }
+
+</script>
+</head>
+<body>
+		<div class="row" style="height:240px;">
+			<div class="col-lg-12">
+				<div class="panel-body">
+					<table>						
+                      	<tr style="height: 45px;">
+                      		<td colspan="1" align="left" style="width:120px;"><label class="">设置期限方式:</label></td>
+                      		<td colspan="6"><input type="radio" class="limitType" name="limitType" value="1" />&nbsp&nbsp&nbsp工作日&nbsp&nbsp&nbsp<input type="radio" class="limitType" name="limitType" value="2" />&nbsp&nbsp&nbsp日历日 &nbsp&nbsp&nbsp</td>
+                      	</tr>
+                      	<tr style="height: 45px;">
+                      		<td colspan="1" align="left" style="width:120px;"><label class="text-right">跳过：</label></td>
+                      		<td colspan="6"><input type="radio" class="jumpType"  name="jumpType" value="1" checked/>&nbsp&nbsp&nbsp不跳过&nbsp&nbsp&nbsp<input type="radio" class="jumpType"  name="jumpType" value="2" />&nbsp&nbsp&nbsp所有人&nbsp&nbsp&nbsp<input type="radio" class="jumpType" name="jumpType" value="3" />&nbsp&nbsp&nbsp上节点人员&nbsp&nbsp&nbsp</td>
+                      	</tr>
+                      	<tr style="height: 45px;">
+                      		<td align="left" style="width:120px;"><label>设置期限时间:</label></td>
+                      		<td>
+	                      		<div class="input-group" style="padding-right: 10px;">
+	            					<input type="text" class="form-control text-right" id="day" name="day">
+	            					<span class="input-group-addon">天</span>
+	        					</div>
+        					</td>
+        					<td>
+	                      		<div class="input-group" style="padding-right: 10px;">
+	            					<input type="text" class="form-control text-right" id="hour" name="hour">
+	            					<span class="input-group-addon">小时</span>
+	        					</div>
+        					</td>
+        					<td>
+	                      		<div class="input-group">
+	            					<input type="text" class="form-control text-right" id="min" name="min">
+	            					<span class="input-group-addon">分钟</span>
+	        					</div>
+        					</td>
+                      	</tr>
+                      	<tr height="15">
+                      	<tr>
+                      	
+                      	<tr style="height: 45px;">
+                      		<td colspan="1" align="left" style="width:120px;"><label class="">流程变量设置:</label></td>
+                      		<td colspan="6">
+                      			<input id="processVariable" class="form-control" placeholder="请输入流程变量">
+							</td>
+                      	</tr>
+                      	
+                      </table>	
+                </div>
+			</div>
+		</div>
+		<div class="modal-footer" style="background-color: white;">
+		 	<button type="button" class="btn btn-primary" onclick="save()">保存</button>
+			<button type="button" class="btn btn-default" onclick="parent.d.close();">取消</button>
+		</div>
+</body>
+</html>

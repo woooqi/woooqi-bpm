@@ -1,0 +1,105 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>ModelEdit</title>
+		
+	    <style type="text/css"></style>
+        <script type="text/javascript">
+        var id = "";
+        $(document).ready(function() {
+        	 $("#name").val("${name}");
+       		$.ajax({
+				   type: "POST",
+				   url: "${ctx}/flow/getProcessFlowByActId",
+				   dataType: 'json',
+				   async: false,
+				   data: {activitiId : "${activitiId}"},
+				   success: function(data){
+					   id = data.id;
+					   $("#conditionFlow").val(data.conditionFlow);
+					   $("#description").val(data.description);
+					  
+					   if(data.defalutFlow){
+						   $("input[name='defalutFlow'][value='1']").attr("checked",true);
+					   }else{
+						   $("input[name='defalutFlow'][value='0']").attr("checked",true);
+					   } 
+					
+						
+					}
+				});
+        	
+        });
+        	function save(){
+        		var activitiId="${activitiId}";
+        		var name = $("#name").val().trim();
+        		var description = $("#description").val();
+        		var defalutFlow = $('.defalutFlow:radio:checked').val();
+        		if(defalutFlow == "1"){
+        			defalutFlow = activitiId;
+        		}else{
+        			defalutFlow = "";
+        		}
+        		var conditionFlow = $("#conditionFlow").val();
+        		$.ajax({
+					   type: "POST",
+					   url: "${ctx}/flow/updateProcessFlow",
+					   dataType: 'json',
+					   async: false,
+					   data:{id:id,activitiId:activitiId,definitionId:"${definitionId}",name : name,defalutFlow : defalutFlow,description : description,conditionFlow : conditionFlow},
+					   success: function(data){
+						   if(data.code > 0 ){
+							    alert("操作成功");
+								parent.d.close();
+								parent.f_search();
+						   }else{
+							   alert(data.msg);
+						   }
+						   
+					   }
+					});
+        	}
+        </script>
+		
+	</head>
+	
+	<body>
+		<div id="wrapper">
+			<div class="modal-body">
+				<div class="row">
+					<div class="col-lg-12">
+						<div class="panel-body">
+							<table>
+	
+								<tr class="hidden">
+									<input class="form-control hidden" type="text" id="id" name="id" style="width: 100%;"  />
+									<input class="form-control hidden" type="text" id="definitionId" name="definitionId" style="width: 100%;"  />
+									<td ><label>流线名称:</l  abel></td>
+									<td><input class="form-control" type="text" id="name" name="name" style="width: 100%;" readonly="readonly"/></td>
+								</tr>
+								<tr style="height: 36px;">
+									<td ><label>默认流线:</label></td>
+									<td ><input type="radio" class="defalutFlow" name="defalutFlow" value="1" />&nbsp&nbsp&nbsp是&nbsp&nbsp&nbsp<input type="radio" class="defalutFlow" name="defalutFlow" value="0" checked="checked"/>&nbsp&nbsp&nbsp否 &nbsp&nbsp&nbsp</td>
+								</tr>
+								<tr>
+									<td ><label>条件流线:</label></td>
+									<td><input class="form-control" type="text" id="conditionFlow" name="conditionFlow" style="width: 100%;"/></td>
+								</tr>
+							    <tr>
+									<td ><label>流线描述:</label></td>
+									<td><textarea class="form-control" type="text" id="description" name="description" style="width: 100%;"/></textarea></td>
+								</tr>	
+								
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary" onclick="save()">保存</button>
+				<button type="button" class="btn btn-default" onclick="parent.d.close();">取消</button>
+			</div>
+		</div>
+	</body>
+
+</html>

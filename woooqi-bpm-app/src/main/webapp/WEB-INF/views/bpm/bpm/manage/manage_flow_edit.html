@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title></title>
+<style type="text/css">
+	.form-control{margin-bottom: 10px;}
+	.new_input{width:200px;height: 26px;text-align: center;}
+	.fa-edit{color:#777777;}
+	.alert-info {color: #31708f;background-color: #f8f8f8;border-color: #f8f8f8;}
+</style>
+<script language="javascript" type="text/javascript">
+	$(document).ready(function() {
+		_initHtml(function(){
+			$("#bpm").addClass("active");
+	    	$("#bpm_process").addClass("active");
+	    	$("#process_manage").addClass("active");
+			$('#side-menu').metisMenu();
+		});
+		
+		$.ajax({
+			type: "POST",
+			url: "${ctx}/flow/flowManage",
+			dataType: 'json',
+			data:{"definitionId":"${definitionId}"},
+			success: function(datas){
+				var data = datas.rows;				
+				for(var i = 0;i<data.length;i++){
+					var name="";
+					var type="";
+					if( data[i].name!=null){
+					 	if(data[i].name.indexOf(":")!=-1){
+					 		if(data[i].name.split(":")[0]!=null&&data[i].name.split(":")[0]!="null"){
+					 			name=data[i].name.split(":")[0];
+					 		}
+					 		if(data[i].name.split(":")[1]!=null){
+					 			type=data[i].name.split(":")[1]
+					 		}
+						}
+					}
+					var table = $("#para_table");
+					var tr = "<tr>"
+							+ "<td style='text-align: center; width: 50px;' name='INDEX' >"+($("#para_tbody").find("tr").length+1)+"</td>"
+							+ "<td style='text-align: center; width: 260px;display: none;' name='id'>"+data[i].id+"</td>"
+							+ "<td style='text-align: center; ' name='act_type'>"+type+"</td>"
+							+ "<td style='text-align: center;' id ='act_name' name='act_name'>"+name+"</td>"
+							if(type=='互斥流线'){
+								tr += "<td style='text-align: center;' name='act_node'><a href='javascript: void(0)' onclick=\"manage_flow_flow_edit('"+data[i].id+"','"+name+"')\"><i class='fa fa-edit fa-1x'></i></a></td>"
+							}else{
+								tr += "<td style='text-align: center;' name='act_node'></td>"
+							}
+							tr += "</tr>";
+					
+					table.append(tr);
+							
+				  }
+			 }
+		});
+		
+	}); 
+	var win_width = $(window).width();
+	var win_height = $(window).height();
+	var d = null;
+	//节点
+	function manage_flow_flow_edit(id,name){
+		 d = dialog({
+				title: '流线配置',
+				url : "${ctx}/edit?path=bpm/bpm/manage/manage_flow_flow_edit&activitiId="+id+"&definitionId="+"${definitionId}"+"&name="+name,
+				width : win_width*0.4,
+				height : 270,
+				close:false
+		});
+		d.showModal();
+	}
+	
+	 function f_search(){
+	    	$('#data-table').bootstrapTable('refresh', {});  
+	    }
+		
+</script>
+</head>
+<body>
+	<div id="wrapper">
+		<div class="row">
+			<div class="col-lg-12">
+				<div class="alert alert-info">
+	                <a href="${ctx}/main_business?path=bpm/bpm/manage/process_manage&_id=297e39e45e11e100015e130825170001">流程设计</a>&nbsp;&nbsp;/&nbsp;&nbsp;<a href="${ctx}/main_business?path=bpm/bpm/manage/process_manage&_id=297e39e45e11e100015e130825170001">流程配置</a>&nbsp;&nbsp;/&nbsp;&nbsp;<a href="#">配置管理</a>
+	            </div>
+            </div>
+		</div>
+		<div class="row">
+ 			<div class="col-lg-12">
+ 				<div class="panel panel-default">
+ 					<div class="panel-heading">流线信息</div>
+					<div class="panel-body">
+						 <table class="table table-striped" id="para_table" style="word-break:break-all; word-wrap:break-all;">
+	                       	<thead>
+								<tr>
+									<th style="text-align: center;width:50px;" name="INDEX" >序号</th>
+									<th style="text-align: center;display: none;" name="id" >编号</th>
+									<th style="text-align: center;" name="act_type">类型</th>
+									<th style="text-align: center;" name="act_name">名称</th>
+									<th style="text-align: center;" name="act_node">配置</th>
+									</tr>
+							</thead>
+							<tbody id="para_tbody">
+			                </tbody>
+					 	</table>  
+					</div>		
+				</div>
+			</div>
+		</div>
+	</div>	
+	
+</body>
+</html>

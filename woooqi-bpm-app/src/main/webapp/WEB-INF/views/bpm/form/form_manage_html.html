@@ -1,0 +1,120 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>Form Manage</title>
+	    <style type="text/css">
+	    
+	    	.form-control{margin-bottom: 10px;}
+			.new_input{width:200px;height: 26px;text-align: center;}
+			.fa-edit{color:#777777;}
+			.alert-info {color: #31708f;background-color: #f8f8f8;border-color: #f8f8f8;}
+	    	
+	    </style>
+	    
+	     <script type="text/JavaScript" src="${ctx}/static/bootstrap/vendors/ckeditor/ckeditor.js"></script>
+	    
+        <script type="text/javascript">
+        	var win_width = $(window).width();
+	    	var win_height = $(window).height();
+	    	
+	        $(document).ready(function() {
+	        	CKEDITOR.replace('htmls');
+	        	_initHtml(function(){
+		        	$("#form").addClass("active");
+		        	$("#form_manage").addClass("active");
+		    		$('#side-menu').metisMenu();
+	        	});
+	        	
+	         	$.ajax({
+		 			   type: "POST",
+		 			   url: "${ctx}/customForm/getCustomFormHtmlById",
+		 			   dataType: 'json',
+		 			   data:{formId : '${formId}'},
+		 			   async: false,
+		 			   success: function(data){
+		 				   if(data!=null){
+		 						var val=data.html;
+		 						CKEDITOR.instances.htmls.setData(val);
+		 				   }
+		 				   
+		 				 
+		 			   }
+		    		}); 
+	        	
+	        	
+	        	
+	        /* 	var val = "<table border='1' cellpadding='1' cellspacing='1' style='width:500px'>"
+	        			   +"<tbody><tr><td colspan='2' style='text-align:center'>表单</td></tr>"
+	        			+"<tr><td>&nbsp;</td><td>&nbsp;</td></tr>"
+	        			+"</tbody>"
+	        			+"</table>";
+	        	CKEDITOR.instances.htmls.setData(val); */
+	        	
+	    	});
+
+			function getHtmls(){
+				var htmls = CKEDITOR.instances.htmls.getData();
+				console.log(htmls);
+				alert(htmls);
+			}    
+			
+			function save(){
+				var htmls = CKEDITOR.instances.htmls.getData();
+				$.ajax({
+		 			   type: "POST",
+		 			   url: "${ctx}/customForm/saveFormHtml",
+		 			   dataType: 'json',
+		 			   data:{formId : '${formId}',html:htmls},
+		 			   async: false,
+		 			   success: function(datas){
+		 				   //alert(JSON.stringify(data));
+		 				   
+		 				  if(datas.code>0){
+		 					  alert(datas.msg);
+		 		    	   		window.location.href = "${ctx}/main_business?path=bpm/form/form_manage&_id=${_id}";
+		 				 	}else {
+		 				 		alert(datas.msg);
+		 				 	}
+		 				 
+		 			   }
+		    		}); 
+				
+			}
+	        
+        </script>
+	</head>
+	<body>
+	
+	<div id="wrapper">
+			<div class="row">
+				<div class="col-lg-12">
+					<div class="alert alert-info">
+		                <a href="${ctx}/main_business?path=bpm/bpm/manage/process_manage&_id=${_id}">流程设计</a>&nbsp;&nbsp;/&nbsp;&nbsp;<a href="${ctx}/main_business?path=bpm/bpm/manage/process_manage&_id=297e39e45e11e100015e130825170001">流程配置</a>&nbsp;&nbsp;/&nbsp;&nbsp;<a href="#">配置管理</a>
+		            </div>
+	            </div>
+			</div>
+			<div class="row">
+				<div class="col-lg-12">
+						<div class="panel-body">
+								<div class="col-lg-12">
+									<table>
+										<tr>
+											<td colspan="2">
+												<textarea  id="htmls" name="htmls" class="form-control"></textarea >
+											</td>
+										</tr>
+									</table>
+								</div>
+						</div>
+				</div>
+			</div>
+			
+			<div class="row">
+				<div class="col-lg-12" align="right" style="padding-right: 40px"> 
+					<button type="button" class="btn btn-primary" onclick="save()">保存</button>
+				</div>
+			</div>
+		</div>
+	</body>
+
+</html>
